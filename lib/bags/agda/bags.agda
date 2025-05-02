@@ -8,4 +8,7 @@ import Haskell.Law.Extensionality
 import Haskell.Law.Monad.Extra
 import Haskell.Law.MonadPlus
 
+import Data.Monoid.Morphism
+import Data.Monoid.Refinement
+
 import Data.Bag
