@@ -1,0 +1,6 @@
+name: bag
+include: agda
+depend:
+  base
+  containers
+flags: --erasure --no-import-sorts --rewriting
