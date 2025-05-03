@@ -15,14 +15,18 @@
         # ###########################################
         # Imports
 
-        pkgs = import nixpkgs {inherit system;};
+        pkgs = import nixpkgs { inherit system; };
+        lib  = import ./nix/lib.nix {
+          inherit pkgs;
+          agda2hs-lib = agda2hs.lib.${system};
+        };
         
         # ###########################################
         # Helpers
 
         # TODO: Specific Haskell compiler
 
-        base-lib = pkgs.agdaPackages.mkDerivation {
+        base-lib = lib.mkDerivation {
           pname = "base";
           meta = {};
           version = "4.18";
@@ -41,7 +45,7 @@
             cd lib/base
           '';
         };
-        containers-lib = pkgs.agdaPackages.mkDerivation {
+        containers-lib = lib.mkDerivation {
           pname = "containers";
           meta = { };
           version = "0.8";
@@ -59,7 +63,7 @@
         };
 
         agda2hs-custom = agda2hs.lib.${system}.withPackages ([
-          agda2hs.packages.${system}.base-lib
+          base-lib
           containers-lib
         ]);
 
