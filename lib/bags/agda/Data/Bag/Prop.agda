@@ -4,7 +4,7 @@ module Data.Bag.Prop where
 
 open import Haskell.Prelude hiding (lookup; null; map; filter)
 
-open import Data.Bag.Core
+open import Data.Bag.Quotient.Prop
 open import Data.Bag.Def
 
 open import Haskell.Prim.Alternative

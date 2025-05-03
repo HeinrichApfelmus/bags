@@ -1,84 +1,18 @@
-{-# OPTIONS --confluence-check #-}
 
--- | Core axiomatization of 'Bag' as the free commutative monoid.
-module Data.Bag.Core where
+-- | Core properties of 'Bag'
+module Data.Bag.Quotient.Prop where
 
-open import Agda.Builtin.Equality.Rewrite
+open import Haskell.Prelude
 
-open import Haskell.Prim
-open import Haskell.Prim.Monoid
 open import Haskell.Law
 open import Haskell.Law.Extensionality using (ext)
 open import Haskell.Law.Function
-open import Haskell.Law.Monoid
 open import Haskell.Law.Monoid as Monoid
 
 import Data.Monoid.Refinement as Monoid
 import Data.Monoid.Morphism as Monoid
 
-{-----------------------------------------------------------------------------
-    Type Definition
-------------------------------------------------------------------------------}
-postulate
-  Bag : Type → Type
-
-  singleton : a → Bag a
-
-  -- Bags are a monoid.
-  instance
-    iMonoidBag : Monoid (Bag a)
-
-instance
-  iSemigroupBag : Semigroup (Bag a)
-  iSemigroupBag = iMonoidBag .Monoid.super
-
-postulate
-  instance
-    iLawfulMonoidBag : IsLawfulMonoid (Bag a)
-
-  -- Bags are a commutative monoid.
-  prop-<>-sym : Commutative (_<>_ {Bag a})
-
-  -- Universal property, existence:
-  -- Any map to a commutative monoid factors through 'Bag'
-  foldBag
-    : ∀ ⦃ _ : Monoid.Commutative b ⦄
-    → (a → b) → (Bag a → b)
-
-  prop-foldBag-singleton
-    : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b) (x : a)
-    → foldBag f (singleton x) ≡ f x
-
-  prop-foldBag-mempty
-    : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b)
-    → foldBag f mempty ≡ mempty
-
-  prop-foldBag-<>
-    : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b) (xs ys : Bag a)
-    → foldBag f (xs <> ys) ≡ foldBag f xs <> foldBag f ys
-
-  -- Universal property, uniqueness
-  prop-foldBag-unique
-    : ∀ ⦃ _ : Monoid.Commutative b ⦄ (g : Bag a → b)
-    → @0 Monoid.IsHomomorphism g
-    → ∀ (xs : Bag a) → foldBag (g ∘ singleton) xs ≡ g xs
-
-instance
-  iLawfulSemigroupBag : IsLawfulSemigroup (Bag a)
-  iLawfulSemigroupBag = iLawfulMonoidBag .super
-
-  iMonoidCommutativeBag : Monoid.Commutative (Bag a)
-  iMonoidCommutativeBag .Monoid.monoid = iMonoidBag
-  iMonoidCommutativeBag .Monoid.commutative = prop-<>-sym
-
-{- [Rewrite foldBag]
-
-In order to make the 'Bag' quotient type easy to use,
-we introduce rewrite rules that allow us to compute 'foldBag'.
--}
-{-# REWRITE prop-foldBag-singleton #-}
-{-# REWRITE prop-foldBag-mempty #-}
-{-# REWRITE prop-foldBag-<> #-}
+open import Haskell.Data.Bag.Quotient public
 
 {-----------------------------------------------------------------------------
     Core properties

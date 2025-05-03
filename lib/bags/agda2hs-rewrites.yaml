@@ -1,0 +1,7 @@
+prelude:
+  implicit: true
+  hiding:
+    - "null"
+    - "filter"
+    - "map"
+    - "concatMap"

@@ -2,6 +2,8 @@
 -- | Operations on 'Bag' defined in terms of the axiomatization.
 module Data.Bag.Def where
 
+open import Haskell.Prelude hiding (null; filter; map; concatMap)
+
 open import Haskell.Prim
 open import Haskell.Prim.Alternative
 open import Haskell.Prim.Applicative
@@ -20,8 +22,16 @@ open import Haskell.Prim.Tuple
 open import Haskell.Law.Function
 open import Haskell.Law.Num
 
-open import Data.Bag.Core
+open import Haskell.Data.Bag.Quotient
 import Data.Monoid.Refinement as Monoid
+
+{-# FOREIGN AGDA2HS
+{-# OPTIONS_GHC -Wno-orphans #-}
+
+import Control.Monad (guard, MonadPlus)
+import Control.Applicative (Alternative (..))
+
+#-}
 
 {-----------------------------------------------------------------------------
     Operations
@@ -31,32 +41,46 @@ import Data.Monoid.Refinement as Monoid
 null : Bag a → Bool
 null = foldBag {{Monoid.CommutativeConj}} (λ _ → False)
 
+-- {-# COMPILE AGDA2HS null #-}
+
 -- | Union of all items from the two arguments.
 -- Synonym for '(<>)'.
 union : Bag a → Bag a → Bag a
 union = _<>_
+
+{-# COMPILE AGDA2HS union #-}
 
 -- | A 'Bag' that may contain an element.
 fromMaybe : Maybe a → Bag a
 fromMaybe Nothing  = mempty
 fromMaybe (Just x) = singleton x
 
+{-# COMPILE AGDA2HS fromMaybe #-}
+
 -- | Number of items in the Bag.
 size : Bag a → Int
 size = foldBag {{Monoid.CommutativeSum}} (λ _ → 1)
+
+-- {-# COMPILE AGDA2HS size #-}
 
 -- | Apply a function to all elements in the 'Bag'
 -- and take the union of the results.
 concatMap : (a → Bag b) → Bag a → Bag b
 concatMap = foldBag
 
+{-# COMPILE AGDA2HS concatMap #-}
+
 -- | Apply a function to all elements in the 'Bag'.
 map : (a → b) → Bag a → Bag b
 map f = concatMap (singleton ∘ f)
 
+{-# COMPILE AGDA2HS map #-}
+
 -- | Obtain a 'Bag' with the same items as a given list.
 fromList : List a → Bag a
 fromList = foldMap singleton
+
+{-# COMPILE AGDA2HS fromList #-}
 
 {-----------------------------------------------------------------------------
     Operations
@@ -90,7 +114,24 @@ instance
   iMonadPlusBag : MonadPlus Bag
   iMonadPlusBag = record { unique-applicative = refl }
 
-{-----------------------------------------------------------------------------
+{-# COMPILE AGDA2HS iFunctorBag #-}
+{-# FOREIGN AGDA2HS
+-- Workaround instance for issue in Agda2hs.
+-- Issue: Definitions of `pure` and `<*>` are duplicated for some reason.
+instance Applicative Bag where
+  pure = singleton
+  fs <*> xs = concatMap (\ f -> map f xs) fs
+#-}
+
+{-# COMPILE AGDA2HS iMonadBag #-}
+{-# COMPILE AGDA2HS iAlternativeBag #-}
+
+{-# FOREIGN AGDA2HS
+-- Workaround instance for issue in Agda2hs
+instance MonadPlus Bag
+#-}
+
+{------------------------------------------------------------------------------
     Operations
     Definitions using do-notation
 ------------------------------------------------------------------------------}
@@ -98,17 +139,25 @@ instance
 filter : (a → Bool) → Bag a → Bag a
 filter p xs = do x ← xs; guard (p x); pure x
 
+{-# COMPILE AGDA2HS filter #-}
+
 -- | Count the number of times that an item is contained in the 'Bag'.
 count : ⦃ Eq a ⦄ → a → Bag a → Int
 count x = size ∘ filter (x ==_)
+
+-- {-# COMPILE AGDA2HS count #-}
 
 -- | Check whether an item is contained in the 'Bag' at least once.
 member : ⦃ Eq a ⦄ → a → Bag a → Bool
 member x ys = 0 < count x ys
 
+-- {-# COMPILE AGDA2HS member #-}
+
 -- | 'Bag' containing all possible pairs of items.
 cartesianProduct : Bag a → Bag b → Bag (a × b)
 cartesianProduct xs ys = do x ← xs; y ← ys; pure (x , y)
+
+{-# COMPILE AGDA2HS cartesianProduct #-}
 
 -- | 'Bag' containing all possible pairs of items where
 -- the functions yield the same result.
@@ -116,3 +165,5 @@ equijoin
     : ∀ {k} ⦃ _ : Eq k ⦄
     → (a → k) → (b → k) → Bag a → Bag b → Bag (a × b)
 equijoin f g xs ys = do x ← xs; y ← ys; guard (f x == g y); pure (x , y)
+
+{-# COMPILE AGDA2HS equijoin #-}
