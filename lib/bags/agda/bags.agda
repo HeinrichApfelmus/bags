@@ -12,3 +12,6 @@ import Data.Monoid.Morphism
 import Data.Monoid.Refinement
 
 import Data.Bag
+import Data.Indexed
+
+import Data.BagOld -- to be absorbed
