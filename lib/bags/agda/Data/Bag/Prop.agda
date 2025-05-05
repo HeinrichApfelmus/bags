@@ -228,27 +228,42 @@ prop-morphism-equijoin-2 f g xs .Monoid.homo-<> x y =
     Properties
     cartesianProduct
 ------------------------------------------------------------------------------}
+lemma-morphism-||-1
+  : ∀ (x : Bool)
+  → Monoid.IsHomomorphism {{MonoidConj}} {{MonoidConj}} (λ y → y || x)
+lemma-morphism-||-1 x = record
+  { homo-mempty = refl
+  ; homo-<> = λ a b → lemma a b x
+  }
+  where
+    lemma : ∀ (a b c : Bool) → ((a && b) || c) ≡ ((a || c) && (b || c))
+    lemma False False c = sym (prop-&&-idem c)
+    lemma False True  c = sym (prop-x-&&-True c)
+    lemma True  b     c = refl
+
+lemma-morphism-||-2
+  : ∀ (x : Bool)
+  → Monoid.IsHomomorphism {{MonoidConj}} {{MonoidConj}} (λ y → x || y)
+lemma-morphism-||-2 x = record
+  { homo-mempty = prop-x-||-True x
+  ; homo-<> = prop-||-&&-distribute x
+  }
+
 -- | A 'cartesianProduct' is empty if and only if both arguments are empty.
-postulate
- prop-null-cartesianProduct
+prop-null-cartesianProduct
   : ∀ (xs : Bag a) (ys : Bag b)
   → null (cartesianProduct xs ys) ≡ (null xs || null ys)
 --
-{-
 prop-null-cartesianProduct =
-    prop-Bag-equality-2 lhs rhs
-      (λ xs → Monoid.prop-morphism-∘ _ _ (prop-morphism-cartesianProduct-2 xs) prop-morphism-null)
-      ?
-      (λ ys → Monoid.prop-morphism-∘ _ _ (prop-morphism-cartesianProduct-1 ys) prop-morphism-null)
-      ?
-      eq-singleton
+    prop-Bag-equality-2 {{Monoid.CommutativeConj}} lhs rhs
+      (λ xs → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ (prop-morphism-cartesianProduct-2 xs) prop-morphism-null)
+      (λ xs → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ prop-morphism-null (lemma-morphism-||-2 (null xs)))
+      (λ ys → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ (prop-morphism-cartesianProduct-1 ys) prop-morphism-null)
+      (λ ys → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ prop-morphism-null (lemma-morphism-||-1 (null ys)))
+      (λ x y → refl)
   where 
     lhs = λ xs ys → null (cartesianProduct xs ys)
     rhs = λ xs ys → (null xs || null ys)
-    eq-singleton
-      : ∀ x y → lhs (singleton x) (singleton y) ≡ rhs (singleton x) (singleton y)
-    eq-singleton x y = ?
--}
 
 {-----------------------------------------------------------------------------
     Properties
