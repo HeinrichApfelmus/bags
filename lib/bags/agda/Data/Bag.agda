@@ -1,5 +1,5 @@
 module Data.Bag where
 
-open import Data.Bag.Def  public
-open import Data.Bag.Core public
-open import Data.Bag.Prop public
+open import Haskell.Data.Bag        public
+open import Data.Bag.Quotient.Prop  public
+open import Data.Bag.Prop           public
