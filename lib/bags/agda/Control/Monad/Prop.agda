@@ -10,6 +10,7 @@ open import Haskell.Prim.Applicative
 open import Haskell.Law.Monad
 open import Haskell.Law.Equality
 open import Haskell.Law.Extensionality
+open import Haskell.Law.Functor
 
 -- | Substitution in the second argument of '(>>=)'.
 cong-monad
@@ -38,6 +39,28 @@ record Monad→Functor (m : Type → Type) ⦃ _ : Monad m ⦄ : Type₁ where
   field
     fmap->>= : ∀ {a b} (f : a → b) (ma : m a)
       → fmap f ma ≡ (ma >>= (return ∘ f))
+
+-- | Monad laws → Functor laws
+prop-IsLawfulMonad→IsLawfulFunctor
+  : ∀ ⦃ _ : Monad m ⦄
+  → MinimalIsLawfulMonad m
+  → Monad→Functor m
+  → IsLawfulFunctor m
+--
+prop-IsLawfulMonad→IsLawfulFunctor laws-m laws-f .identity fa
+  rewrite Monad→Functor.fmap->>= laws-f id fa
+  = MinimalIsLawfulMonad.rightIdentity laws-m fa
+prop-IsLawfulMonad→IsLawfulFunctor laws-m laws-f .composition fa f g
+  rewrite Monad→Functor.fmap->>= laws-f g (fmap f fa)
+  | Monad→Functor.fmap->>= laws-f f fa
+  | Monad→Functor.fmap->>= laws-f (g ∘ f) fa
+  = begin
+    fa >>= (return ∘ g ∘ f)
+  ≡⟨ cong-monad fa (λ x → sym (MinimalIsLawfulMonad.leftIdentity laws-m (f x) _)) ⟩
+    fa >>= (λ x → return (f x) >>= (return ∘ g))
+  ≡⟨ MinimalIsLawfulMonad.associativity laws-m _ _ _ ⟩
+    (fa >>= (return ∘ f)) >>= (return ∘ g)
+  ∎
 
 {-----------------------------------------------------------------------------
     Monad → Applicative
