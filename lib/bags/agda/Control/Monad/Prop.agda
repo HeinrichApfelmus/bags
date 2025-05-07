@@ -7,6 +7,7 @@ open import Haskell.Prelude
 open import Haskell.Prim.Monad
 open import Haskell.Prim.Applicative
 
+open import Haskell.Law.Applicative
 open import Haskell.Law.Monad
 open import Haskell.Law.Equality
 open import Haskell.Law.Extensionality
@@ -73,6 +74,128 @@ record Monad→Applicative (m : Type → Type) ⦃ iMonad : Monad m ⦄ : Type�
 
     <*>->>= : ∀ {a b} → (mf : m (a → b)) (ma : m a)
       → (mf <*> ma) ≡ (mf >>= (λ f → (ma >>= (λ x → return (f x)))))
+
+-- | Monad laws → Applicative laws
+prop-IsLawfulMonad→IsLawfulApplicative
+  : ∀ ⦃ _ : Monad m ⦄
+  → MinimalIsLawfulMonad m
+  → Monad→Functor m
+  → Monad→Applicative m
+  → IsLawfulApplicative m
+--
+prop-IsLawfulMonad→IsLawfulApplicative {m} laws-m laws-f laws-a = record
+    { super = prop-IsLawfulMonad→IsLawfulFunctor laws-m laws-f
+    ; identity = midentity
+    ; composition = mcomposition
+    ; homomorphism = mhomomorphism
+    ; interchange = minterchange
+    ; functor = mfunctor
+    }
+  where
+    open Monad→Applicative laws-a
+    open Monad→Functor laws-f
+    massociativity = MinimalIsLawfulMonad.associativity laws-m
+    mleftIdentity  = MinimalIsLawfulMonad.leftIdentity laws-m
+
+    midentity : ∀ {a} (ma : m a) → (pure id <*> ma) ≡ ma
+    midentity {a} ma
+      rewrite pure-return (id {a})
+      | <*>->>= (return id) ma
+      = begin
+        return id >>= (λ f → ma >>= (λ x → return (f x)))
+      ≡⟨ MinimalIsLawfulMonad.leftIdentity laws-m _ _ ⟩
+        ma >>= (λ x → return (id x))
+      ≡⟨ MinimalIsLawfulMonad.rightIdentity laws-m _ ⟩
+        ma
+      ∎
+
+    mfunctor : ∀ {a b} (f : a → b) (u : m a) → fmap f u ≡ (pure f <*> u)
+    mfunctor f u = begin
+        fmap f u
+      ≡⟨ fmap->>= _ _ ⟩
+        (do x ← u; return (f x))
+      ≡⟨ sym (mleftIdentity _ _) ⟩
+        (do f' ← return f; x ← u; return (f' x))
+      ≡⟨ cong (λ o → o >>= _) (sym (pure-return _)) ⟩
+        (do f' ← pure f; x ← u; return (f' x))
+      ≡⟨ sym (<*>->>= _ _) ⟩
+        pure f <*> u
+      ∎
+
+    mcomposition
+      : ∀ {a b c} (u : m (b → c)) (v : m (a → b)) (w : m a)
+      → (pure _∘_ <*> u <*> v <*> w) ≡ (u <*> (v <*> w))
+    mcomposition u v w
+      = begin
+        pure _∘_ <*> u <*> v <*> w
+      ≡⟨ cong (λ o → o <*> u <*> v <*> w) (pure-return _∘_) ⟩
+        return _∘_ <*> u <*> v <*> w
+      ≡⟨ cong (λ o → o <*> v <*> w) (<*>->>= _ _ ) ⟩
+        (do comp ← return _∘_; g ← u; return (comp g)) <*> v <*> w
+      ≡⟨ cong (λ o → o <*> v <*> w) (mleftIdentity _ _) ⟩
+        (do g ← u; return (_∘_ g)) <*> v <*> w
+      ≡⟨ cong (λ o → o <*> w) (<*>->>= _ _ ) ⟩
+        (do g' ← (do g ← u; return (_∘_ g)); f ← v; return (g' f)) <*> w
+      ≡⟨ cong (λ o → o <*> w) (sym (massociativity u _ _)) ⟩
+        (do g ← u; g' ← return (_∘_ g); f ← v; return (g' f)) <*> w
+      ≡⟨ cong (λ o → o <*> w) (cong-monad u (λ g → mleftIdentity _ _)) ⟩
+        (do g ← u; f ← v; return (g ∘ f)) <*> w
+      ≡⟨ <*>->>= _ _ ⟩
+        (do gf ← (do g ← u; f ← v; return (g ∘ f)); x ← w; return (gf x))
+      ≡⟨ sym (massociativity u _ _) ⟩
+        (do g ← u; gf ← (do f ← v; return (g ∘ f)); x ← w; return (gf x))
+      ≡⟨ cong-monad u (λ g → sym (massociativity v _ _)) ⟩
+        (do g ← u; do f ← v; gf ← return (g ∘ f); x ← w; return (gf x))
+      ≡⟨ cong-monad u (λ g → cong-monad v (λ f → mleftIdentity _ _)) ⟩
+        (do g ← u; f ← v; x ← w; return (g (f x)))
+      ≡⟨ cong-monad u (λ g → cong-monad v λ f → cong-monad w (λ x → sym (mleftIdentity _ _))) ⟩
+        (do g ← u; f ← v; x ← w; y ← return (f x); return (g y))
+      ≡⟨ cong-monad u (λ g → cong-monad v λ x → massociativity _ _ _) ⟩
+        (do g ← u; f ← v; y ← (do x ← w; return (f x)); return (g y))
+      ≡⟨ cong-monad u (λ g → massociativity _ _ _) ⟩
+        (do g ← u; y ← (do f ← v; x ← w; return (f x)); return (g y))
+      ≡⟨ sym (<*>->>= _ _) ⟩
+        u <*> (do f ← v; x ← w; return (f x))
+      ≡⟨ cong (λ o → u <*> o) (sym (<*>->>= _ _)) ⟩
+        u <*> (v <*> w)
+      ∎
+
+    mhomomorphism
+      : ∀ {a b} (f : a → b) (x : a)
+      → (pure {m} f <*> pure x) ≡ pure (f x)
+    mhomomorphism f x = begin
+        pure {m} f <*> pure x
+      ≡⟨ cong₂ (_<*>_) (pure-return f) (pure-return x) ⟩
+        return {m} f <*> return x
+      ≡⟨ <*>->>= _ _ ⟩
+        (do f' ← return f; x' ← return x; return (f' x'))
+      ≡⟨ mleftIdentity _ _ ⟩
+        (do x' ← return x; return (f x'))
+      ≡⟨ mleftIdentity _ _ ⟩
+        return (f x)
+      ≡⟨ sym (pure-return _) ⟩
+        pure (f x)
+      ∎
+
+    minterchange
+      : ∀ {a b} (u : m (a → b)) (y : a)
+      → (u <*> pure y) ≡ (pure (_$ y) <*> u)
+    minterchange u y = begin
+        u <*> pure y
+      ≡⟨ cong (u <*>_) (pure-return _) ⟩
+        u <*> return y
+      ≡⟨ <*>->>= _ _ ⟩
+        (do f ← u; y' ← return y; return (f y'))
+      ≡⟨ cong-monad u (λ f → mleftIdentity y _) ⟩
+        (do f ← u; return (f y))
+      ≡⟨ sym (mleftIdentity _ _) ⟩
+        (do y'' ← return (_$ y); f ← u; return (y'' f))
+      ≡⟨ sym (<*>->>= _ _) ⟩
+        return (_$ y) <*> u
+      ≡⟨ sym (cong (_<*> u) (pure-return _)) ⟩
+        pure (_$ y) <*> u
+      ∎
+
 
 -- | Prove that the default definitions imply that
 -- '(*>)' equals '(>>)'.
