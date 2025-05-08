@@ -14,6 +14,6 @@ import Data.Monoid.Refinement
 import Data.Bag
 import Data.Bag.Raw
 
-import Data.Indexed
+import Data.Table
 
 import Data.BagOld -- to be absorbed

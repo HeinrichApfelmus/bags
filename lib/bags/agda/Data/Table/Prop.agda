@@ -1,10 +1,10 @@
 
 -- | Proofs about indexed 'Table's.
-module Data.Indexed.Prop where
+module Data.Table.Prop where
 
 open import Haskell.Prelude hiding (filter; lookup; null)
 
-open import Data.Indexed.Def
+open import Data.Table.Def
 
 open import Data.Bag using (Bag)
 import Data.Bag as Bag
