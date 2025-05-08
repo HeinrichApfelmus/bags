@@ -10,3 +10,11 @@ instance Semigroup Conj where
 instance Monoid Conj where
     mempty = MkConj True
 
+newtype Sum' a = MkSum{getSum' :: a}
+
+instance (Num a) => Semigroup (Sum' a) where
+    x <> y = MkSum (getSum' x + getSum' y)
+
+instance (Num a) => Monoid (Sum' a) where
+    mempty = MkSum 0
+

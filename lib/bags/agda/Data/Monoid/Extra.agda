@@ -24,3 +24,26 @@ instance
 
 {-# COMPILE AGDA2HS iSemigroupConj #-}
 {-# COMPILE AGDA2HS iMonoidConj #-}
+
+-- Monoid under addition.
+record Sum' a : Type where
+  constructor MkSum
+  field
+    getSum' : a
+
+open Sum' public
+
+{-# COMPILE AGDA2HS Sum' newtype #-}
+
+instance
+  iSemigroupSum' : ⦃ Num a ⦄ → Semigroup (Sum' a)
+  iSemigroupSum' ._<>_ x y = record{getSum' = getSum' x + getSum' y}
+
+  iDefaultMonoidSum' : ⦃ Num a ⦄ → DefaultMonoid (Sum' a)
+  iDefaultMonoidSum' .DefaultMonoid.mempty = record{getSum' = 0}
+
+  iMonoidSum' : ⦃ Num a ⦄ → Monoid (Sum' a)
+  iMonoidSum' = record{DefaultMonoid iDefaultMonoidSum'}
+
+{-# COMPILE AGDA2HS iSemigroupSum' #-}
+{-# COMPILE AGDA2HS iMonoidSum' #-}
