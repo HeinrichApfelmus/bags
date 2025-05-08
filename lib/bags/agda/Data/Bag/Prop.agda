@@ -22,6 +22,8 @@ import Haskell.Law.Monoid as Monoid
 import Data.Monoid.Morphism as Monoid
 import Data.Monoid.Refinement as Monoid
 
+open import Control.Monad.Prop as Monad
+
 ------------------------------------------------------------------------------
 -- Move out: Additional type of monad
 
@@ -31,15 +33,6 @@ record IsCommutativeMonad (m : Type → Type) ⦃ _ : Monad m ⦄ : Type₁ wher
     prop-monad-sym : ∀ {a b : Type} (mx : m a) (my : m b) (mz : a → b → m c)
       → mx >>= (λ x → my >>= (λ y → mz x y))
         ≡ my >>= (λ y → mx >>= (λ x → mz x y))
-
-------------------------------------------------------------------------------
--- Move out: Helper function for proofs on monads
-
-cong-monad
-  : ∀ ⦃ _ : Monad m ⦄ (mx : m a) (f g : a → m b)
-  → (∀ x → f x ≡ g x)
-  → (do x ← mx; f x) ≡ (do x ← mx; g x)
-cong-monad mx f g eq = cong (mx >>=_) (ext eq)
 
 {-----------------------------------------------------------------------------
     Properties
@@ -70,51 +63,70 @@ prop-size-<> xs ys = refl
     Properties
     functorial type classes
 ------------------------------------------------------------------------------}
--- | 'map'ping the identity function leaves the result unchanged.
-prop-map-id : ∀ (xs : Bag a) → map id xs ≡ xs
--- 
-prop-map-id xs = prop-foldBag-unique id Monoid.prop-morphism-id xs
-
--- | 'map'ping a composition of functions gives the composition.
-prop-map-∘
-  : ∀ (f : a → b) (g : b → c) (xs : Bag a)
-  → map (g ∘ f) xs ≡ (map g ∘ map f) xs
 --
-prop-map-∘ f g =
-    prop-Bag-equality lhs rhs lhs-homo rhs-homo (λ x → refl)
-  where
-    lhs = map (g ∘ f)
-    rhs = map g ∘ map f
+prop-foldBag-associative
+  : ∀ ⦃ _ : Monoid.Commutative c ⦄ (g : b → c) (f : a → Bag b) (xs : Bag a)
+  → foldBag (foldBag g ∘ f) xs ≡ foldBag g (foldBag f xs)
+--
+prop-foldBag-associative g f =
+    prop-Bag-equality lhs rhs
+      (prop-morphism-foldBag _)
+      (Monoid.prop-morphism-∘ _ _ (prop-morphism-foldBag _) (prop-morphism-foldBag _))
+      (λ x → refl)
+  where 
+    lhs = λ xs → foldBag (foldBag g ∘ f) xs
+    rhs = λ xs → foldBag g (foldBag f xs)
 
-    lhs-homo : Monoid.IsHomomorphism lhs
-    lhs-homo = prop-morphism-foldBag _
+minimalIsLawfulMonadBag : MinimalIsLawfulMonad Bag
+minimalIsLawfulMonadBag = record
+  { leftIdentity  = λ a' k → refl 
+  ; rightIdentity = prop-foldBag-function-singleton
+  ; associativity = λ ma f g → prop-foldBag-associative g f ma
+  }
 
-    @0 rhs-homo : Monoid.IsHomomorphism rhs
-    rhs-homo =
-      Monoid.prop-morphism-∘ (map f) (map g)
-        (prop-morphism-foldBag _)
-        (prop-morphism-foldBag _)
+hasMonad→Applicative : Monad→Applicative Bag
+hasMonad→Applicative = record
+  { pure-return = λ x → refl
+  ; <*>->>= = λ mab ma → refl
+  }
+
+hasMonad→Functor : Monad→Functor Bag
+hasMonad→Functor = record { fmap->>= = λ f ma → refl }
 
 instance
   iLawfulFunctorBag : IsLawfulFunctor Bag
-  iLawfulFunctorBag .identity = prop-map-id
-  iLawfulFunctorBag .composition xs f g = prop-map-∘ f g xs
+  iLawfulFunctorBag =
+    prop-IsLawfulMonad→IsLawfulFunctor
+      minimalIsLawfulMonadBag hasMonad→Functor
 
--- postulated for now, need universal property on `foldBag`
--- that can deal with predicates.
-postulate instance
+  iLawfulApplicativeBag : IsLawfulApplicative Bag
+  iLawfulApplicativeBag =
+    prop-IsLawfulMonad→IsLawfulApplicative
+      minimalIsLawfulMonadBag hasMonad→Functor hasMonad→Applicative 
+
   iLawfulMonadBag : IsLawfulMonad Bag
+  iLawfulMonadBag .leftIdentity  = minimalIsLawfulMonadBag .MinimalIsLawfulMonad.leftIdentity
+  iLawfulMonadBag .rightIdentity = minimalIsLawfulMonadBag .MinimalIsLawfulMonad.rightIdentity
+  iLawfulMonadBag .associativity = minimalIsLawfulMonadBag .MinimalIsLawfulMonad.associativity
+  iLawfulMonadBag .pureIsReturn  = hasMonad→Applicative .Monad→Applicative.pure-return
+  iLawfulMonadBag .sequence2bind = hasMonad→Applicative .Monad→Applicative.<*>->>=
+  iLawfulMonadBag .fmap2bind     = hasMonad→Functor .Monad→Functor.fmap->>=
+  iLawfulMonadBag .rSequence2rBind =
+    prop-*>->>
+      minimalIsLawfulMonadBag hasMonad→Applicative hasMonad→Functor
+      (λ ma mb → refl) (λ ma mb → refl)
 
-instance
   iLawfulMonadPlusBag : IsLawfulMonadPlus Bag
   iLawfulMonadPlusBag .mplus-mzero-x = Monoid.leftIdentity
   iLawfulMonadPlusBag .mplus-x-mzero = Monoid.rightIdentity
-  iLawfulMonadPlusBag .mplus-assoc x y z = sym (Monoid.associativity x y z)
-  iLawfulMonadPlusBag .mzero-bind k = refl
-  iLawfulMonadPlusBag .bind-mzero = prop-foldBag-function-mempty
+  iLawfulMonadPlusBag .mplus-assoc   = λ x y z → sym (Monoid.associativity x y z)
+  iLawfulMonadPlusBag .mzero-bind    = λ k → refl
+  iLawfulMonadPlusBag .bind-mzero    = prop-foldBag-function-mempty
+
+  iDistributiveMonadPlusBag : IsDistributiveMonadPlus Bag
+  iDistributiveMonadPlusBag .mplus-bind x y k = prop-foldBag-<> k x y
 
 postulate instance
-  iDistributiveMonadPlusBag : IsDistributiveMonadPlus Bag
   iCommutativeMonadBag      : IsCommutativeMonad Bag
 
 {-----------------------------------------------------------------------------
@@ -228,27 +240,42 @@ prop-morphism-equijoin-2 f g xs .Monoid.homo-<> x y =
     Properties
     cartesianProduct
 ------------------------------------------------------------------------------}
+lemma-morphism-||-1
+  : ∀ (x : Bool)
+  → Monoid.IsHomomorphism {{MonoidConj}} {{MonoidConj}} (λ y → y || x)
+lemma-morphism-||-1 x = record
+  { homo-mempty = refl
+  ; homo-<> = λ a b → lemma a b x
+  }
+  where
+    lemma : ∀ (a b c : Bool) → ((a && b) || c) ≡ ((a || c) && (b || c))
+    lemma False False c = sym (prop-&&-idem c)
+    lemma False True  c = sym (prop-x-&&-True c)
+    lemma True  b     c = refl
+
+lemma-morphism-||-2
+  : ∀ (x : Bool)
+  → Monoid.IsHomomorphism {{MonoidConj}} {{MonoidConj}} (λ y → x || y)
+lemma-morphism-||-2 x = record
+  { homo-mempty = prop-x-||-True x
+  ; homo-<> = prop-||-&&-distribute x
+  }
+
 -- | A 'cartesianProduct' is empty if and only if both arguments are empty.
-postulate
- prop-null-cartesianProduct
+prop-null-cartesianProduct
   : ∀ (xs : Bag a) (ys : Bag b)
   → null (cartesianProduct xs ys) ≡ (null xs || null ys)
 --
-{-
 prop-null-cartesianProduct =
-    prop-Bag-equality-2 lhs rhs
-      (λ xs → Monoid.prop-morphism-∘ _ _ (prop-morphism-cartesianProduct-2 xs) prop-morphism-null)
-      ?
-      (λ ys → Monoid.prop-morphism-∘ _ _ (prop-morphism-cartesianProduct-1 ys) prop-morphism-null)
-      ?
-      eq-singleton
+    prop-Bag-equality-2 {{Monoid.CommutativeConj}} lhs rhs
+      (λ xs → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ (prop-morphism-cartesianProduct-2 xs) prop-morphism-null)
+      (λ xs → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ prop-morphism-null (lemma-morphism-||-2 (null xs)))
+      (λ ys → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ (prop-morphism-cartesianProduct-1 ys) prop-morphism-null)
+      (λ ys → Monoid.prop-morphism-∘ {{_}} {{_}} {{MonoidConj}} _ _ prop-morphism-null (lemma-morphism-||-1 (null ys)))
+      (λ x y → refl)
   where 
     lhs = λ xs ys → null (cartesianProduct xs ys)
     rhs = λ xs ys → (null xs || null ys)
-    eq-singleton
-      : ∀ x y → lhs (singleton x) (singleton y) ≡ rhs (singleton x) (singleton y)
-    eq-singleton x y = ?
--}
 
 {-----------------------------------------------------------------------------
     Properties

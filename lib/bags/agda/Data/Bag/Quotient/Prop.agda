@@ -139,7 +139,7 @@ prop-foldBag-function-<> {a} f g =
 
 -- | 'foldBag' that maps to 'singleton' is the identity.
 prop-foldBag-function-singleton
-  : ∀ ⦃ _ : Monoid.Commutative b ⦄ (xs : Bag b)
+  : ∀ (xs : Bag b)
   → foldBag (λ x → singleton x) xs ≡ xs
 --
 prop-foldBag-function-singleton =
