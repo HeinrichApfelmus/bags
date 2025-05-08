@@ -12,6 +12,8 @@ open import Haskell.Law
 open import Haskell.Law.Extensionality
 open import Haskell.Law.Num
 
+open import Data.Monoid.Extra
+
 -------------------------------------------------------------------------------
 -- Commutative monoids
 
@@ -55,21 +57,21 @@ instance
     rewrite commutative x3 y3
     = refl
 
+  iCommutativeConj : Commutative Conj
+  iCommutativeConj .monoid = iMonoidConj
+  iCommutativeConj .commutative record{getConj = x} record{getConj = y}
+    = cong (λ o → record{getConj = o}) (prop-&&-sym x y)
+
+  iCommutativeSum' : ⦃ _ : Num a ⦄ → @0 ⦃ IsLawfulNum a ⦄ → Commutative (Sum' a)
+  iCommutativeSum' .monoid = iMonoidSum'
+  iCommutativeSum' .commutative record{getSum' = x} record{getSum' = y}
+    = cong (λ o → record { getSum' = o }) (+-comm x y)
+
 {-# COMPILE AGDA2HS iCommutativeUnit #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₂ #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₃ #-}
-
-CommutativeSum : ⦃ _ : Num a ⦄ → ⦃ IsLawfulNum a ⦄ → Commutative a
-CommutativeSum .monoid = MonoidSum
-CommutativeSum .commutative = +-comm
-
-CommutativeConj : Commutative Bool
-CommutativeConj .monoid = MonoidConj
-CommutativeConj .commutative = prop-&&-sym
-
-CommutativeDisj : Commutative Bool
-CommutativeDisj .monoid = MonoidDisj
-CommutativeDisj .commutative = prop-||-sym
+{-# COMPILE AGDA2HS iCommutativeConj #-}
+{-# COMPILE AGDA2HS iCommutativeSum' #-}
 
 {- *-comm is not part of IsLawfulNum yet?!
 

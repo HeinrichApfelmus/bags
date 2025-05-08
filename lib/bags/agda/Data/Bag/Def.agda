@@ -23,7 +23,8 @@ open import Haskell.Law.Function
 open import Haskell.Law.Num
 
 open import Haskell.Data.Bag.Quotient
-import Data.Monoid.Refinement as Monoid
+open import Data.Monoid.Extra
+import      Data.Monoid.Refinement as Monoid
 
 {-# FOREIGN AGDA2HS
 {-# OPTIONS_GHC -Wno-orphans #-}
@@ -37,11 +38,17 @@ import Control.Applicative (Alternative (..))
     Operations
     basic
 ------------------------------------------------------------------------------}
+-- | Test whether the 'Bag' is empty, 'Monoid' version.
+mnull : Bag a → Conj
+mnull = foldBag (λ _ → MkConj False)
+
+{-# COMPILE AGDA2HS mnull #-}
+
 -- | Test whether the 'Bag' is empty.
 null : Bag a → Bool
-null = foldBag {{Monoid.CommutativeConj}} (λ _ → False)
+null = getConj ∘ mnull
 
--- {-# COMPILE AGDA2HS null #-}
+{-# COMPILE AGDA2HS null #-}
 
 -- | Union of all items from the two arguments.
 -- Synonym for '(<>)'.
@@ -57,11 +64,17 @@ fromMaybe (Just x) = singleton x
 
 {-# COMPILE AGDA2HS fromMaybe #-}
 
+-- | Number of items in the Bag, Monoid version
+msize : Bag a → Sum' Int
+msize = foldBag (λ _ → MkSum 1)
+
+{-# COMPILE AGDA2HS msize #-}
+
 -- | Number of items in the Bag.
 size : Bag a → Int
-size = foldBag {{Monoid.CommutativeSum}} (λ _ → 1)
+size = getSum' ∘ msize
 
--- {-# COMPILE AGDA2HS size #-}
+{-# COMPILE AGDA2HS size #-}
 
 -- | Apply a function to all elements in the 'Bag'
 -- and take the union of the results.
@@ -145,13 +158,13 @@ filter p xs = do x ← xs; guard (p x); pure x
 count : ⦃ Eq a ⦄ → a → Bag a → Int
 count x = size ∘ filter (x ==_)
 
--- {-# COMPILE AGDA2HS count #-}
+{-# COMPILE AGDA2HS count #-}
 
 -- | Check whether an item is contained in the 'Bag' at least once.
 member : ⦃ Eq a ⦄ → a → Bag a → Bool
 member x ys = 0 < count x ys
 
--- {-# COMPILE AGDA2HS member #-}
+{-# COMPILE AGDA2HS member #-}
 
 -- | 'Bag' containing all possible pairs of items.
 cartesianProduct : Bag a → Bag b → Bag (a × b)
