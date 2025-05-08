@@ -12,6 +12,8 @@ open import Haskell.Law
 open import Haskell.Law.Extensionality
 open import Haskell.Law.Num
 
+open import Data.Monoid.Extra
+
 -------------------------------------------------------------------------------
 -- Commutative monoids
 
@@ -55,9 +57,15 @@ instance
     rewrite commutative x3 y3
     = refl
 
+  iCommutativeConj : Commutative Conj
+  iCommutativeConj .monoid = iMonoidConj
+  iCommutativeConj .commutative record{getConj = x} record{getConj = y}
+    = cong (λ o → record{getConj = o}) (prop-&&-sym x y)
+
 {-# COMPILE AGDA2HS iCommutativeUnit #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₂ #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₃ #-}
+{-# COMPILE AGDA2HS iCommutativeConj #-}
 
 CommutativeSum : ⦃ _ : Num a ⦄ → ⦃ IsLawfulNum a ⦄ → Commutative a
 CommutativeSum .monoid = MonoidSum

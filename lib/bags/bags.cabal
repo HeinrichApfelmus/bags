@@ -68,6 +68,7 @@ library
 
   exposed-modules:
     Data.Bag
+    Data.Monoid.Extra
     Data.Monoid.Refinement
   other-modules:
     Data.Bag.Def
