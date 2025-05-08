@@ -179,10 +179,10 @@ prop-fromList-filter p (x ∷ xs)
     Homomorphisms
 ------------------------------------------------------------------------------}
 -- | 'size' is a monoid homomorphism.
-prop-morphism-size
-  : Monoid.IsHomomorphism ⦃ iMonoidBag {a} ⦄ ⦃ MonoidSum ⦄ size
+prop-morphism-msize
+  : Monoid.IsHomomorphism ⦃ iMonoidBag {a} ⦄ msize
 --
-prop-morphism-size = prop-morphism-foldBag ⦃ Monoid.CommutativeSum ⦄ _
+prop-morphism-msize = prop-morphism-foldBag _
 
 -- | 'fromList' is a monoid homomorphism.
 prop-morphism-fromList

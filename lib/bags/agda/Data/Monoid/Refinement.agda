@@ -73,10 +73,6 @@ instance
 {-# COMPILE AGDA2HS iCommutativeConj #-}
 {-# COMPILE AGDA2HS iCommutativeSum' #-}
 
-CommutativeSum : ⦃ _ : Num a ⦄ → ⦃ IsLawfulNum a ⦄ → Commutative a
-CommutativeSum .monoid = MonoidSum
-CommutativeSum .commutative = +-comm
-
 {- *-comm is not part of IsLawfulNum yet?!
 
 CommutativeProduct : ⦃ _ : Num a ⦄ → ⦃ _ : IsLawfulNum a ⦄ → Commutative a

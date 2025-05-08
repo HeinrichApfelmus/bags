@@ -64,11 +64,17 @@ fromMaybe (Just x) = singleton x
 
 {-# COMPILE AGDA2HS fromMaybe #-}
 
+-- | Number of items in the Bag, Monoid version
+msize : Bag a → Sum' Int
+msize = foldBag (λ _ → MkSum 1)
+
+{-# COMPILE AGDA2HS msize #-}
+
 -- | Number of items in the Bag.
 size : Bag a → Int
-size = foldBag {{Monoid.CommutativeSum}} (λ _ → 1)
+size = getSum' ∘ msize
 
--- {-# COMPILE AGDA2HS size #-}
+{-# COMPILE AGDA2HS size #-}
 
 -- | Apply a function to all elements in the 'Bag'
 -- and take the union of the results.
@@ -152,13 +158,13 @@ filter p xs = do x ← xs; guard (p x); pure x
 count : ⦃ Eq a ⦄ → a → Bag a → Int
 count x = size ∘ filter (x ==_)
 
--- {-# COMPILE AGDA2HS count #-}
+{-# COMPILE AGDA2HS count #-}
 
 -- | Check whether an item is contained in the 'Bag' at least once.
 member : ⦃ Eq a ⦄ → a → Bag a → Bool
 member x ys = 0 < count x ys
 
--- {-# COMPILE AGDA2HS member #-}
+{-# COMPILE AGDA2HS member #-}
 
 -- | 'Bag' containing all possible pairs of items.
 cartesianProduct : Bag a → Bag b → Bag (a × b)

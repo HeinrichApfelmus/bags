@@ -4,7 +4,7 @@ module Data.Bag.Def where
 
 import Prelude hiding (null, filter, map, concatMap)
 import Data.Bag.Quotient (Bag, foldBag, singleton)
-import Data.Monoid.Extra (Conj(MkConj, getConj))
+import Data.Monoid.Extra (Conj(MkConj, getConj), Sum'(MkSum, getSum'))
 import Data.Monoid.Refinement ()
 
 
@@ -24,6 +24,12 @@ union = (<>)
 fromMaybe :: Maybe a -> Bag a
 fromMaybe Nothing = mempty
 fromMaybe (Just x) = singleton x
+
+msize :: Bag a -> Sum' Int
+msize = foldBag (\ _ -> MkSum 1)
+
+size :: Bag a -> Int
+size = (\ r -> getSum' r) . msize
 
 concatMap :: (a -> Bag b) -> Bag a -> Bag b
 concatMap = foldBag
@@ -58,6 +64,12 @@ filter p xs
   = do x <- xs
        guard (p x)
        pure x
+
+count :: Eq a => a -> Bag a -> Int
+count x = size . filter (x ==)
+
+member :: Eq a => a -> Bag a -> Bool
+member x ys = 0 < count x ys
 
 cartesianProduct :: Bag a -> Bag b -> Bag (a, b)
 cartesianProduct xs ys
