@@ -1,7 +1,7 @@
 {-# OPTIONS --irrelevant-projections #-}
 
 -- | Indexed Tables and operations on them.
-module Data.Indexed.Def where
+module Data.Table.Def where
 
 open import Haskell.Prelude hiding (lookup; null)
 
@@ -28,7 +28,9 @@ import Data.Monoid.Refinement as Monoid
 
 isJust : Maybe a → Bool
 isJust Nothing = False
-isJust (Just x) = True
+isJust (Just _) = True
+
+{-# COMPILE AGDA2HS isJust #-}
 
 {-----------------------------------------------------------------------------
     Raw operations
@@ -37,6 +39,8 @@ mergeRaw
   : ∀ {k} ⦃ _ : Ord k ⦄
   → Map k (Bag a) → Map k (Bag b) → Map k (Bag (a × b))
 mergeRaw = Map.intersectionWith Bag.cartesianProduct
+
+{-# COMPILE AGDA2HS mergeRaw #-}
 
 {-----------------------------------------------------------------------------
     Invariant
@@ -112,8 +116,8 @@ prop-invariant-mergeRaw {xs = xs} {ys = ys} cond-xs cond-ys key
 {-----------------------------------------------------------------------------
     Data type
 ------------------------------------------------------------------------------}
--- | An indexed 'Table' is a finite map from keys (indices) to finite bags
--- of values.
+-- | A 'Table' is a finite map from keys (indices) to finite 'Bag's
+-- of values. Think @'Table' k a ~ 'Map' k ('Bag' a)@.
 --
 -- This type can also be viewed as a 'Bag' where elements have been grouped
 -- by keys.
@@ -124,6 +128,8 @@ record Table k a ⦃ @0 _ : Ord k ⦄ : Type where
     @0 . invariant-lookup : Is-lookup-not-null getTable
 
 open Table public
+
+{-# COMPILE AGDA2HS Table newtype #-}
 
 -- | Two Tables are equal if they contain the same 'Map'.
 @0 prop-Table-equality
@@ -140,14 +146,20 @@ toBag : Maybe (Bag a) → Bag a
 toBag Nothing  = mempty
 toBag (Just x) = x
 
+{-# COMPILE AGDA2HS toBag #-}
+
 -- | Look up an index in a 'Table'.
 lookup : ∀ {k} ⦃ _ : Ord k ⦄ → k → Table k a → Bag a
 lookup = λ key → toBag ∘ Map.lookup key ∘ getTable
+
+{-# COMPILE AGDA2HS lookup #-}
 
 -- | Table with a single item.
 singleton : ∀ {k} ⦃ _ : Ord k ⦄ → k → a → Table k a
 singleton key x =
   MkTable (Map.singleton key (Bag.singleton x)) prop-invariant-singleton
+
+{-# COMPILE AGDA2HS singleton #-}
 
 instance
   iSemigroupTable : ∀ {k} ⦃ _ : Ord k ⦄ → Semigroup (Table k a)
@@ -160,6 +172,9 @@ instance
 
   iMonoidTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid (Table k a)
   iMonoidTable = record{DefaultMonoid iDefaultMonoidTable}
+
+{-# COMPILE AGDA2HS iSemigroupTable #-}
+{-# COMPILE AGDA2HS iMonoidTable #-}
 
 -- | The semigroup operation on 'Table' is commutative.
 @0 prop-Table-<>-sym
@@ -179,13 +194,19 @@ instance
   iCommutativeTable .Monoid.monoid = iMonoidTable
   iCommutativeTable .Monoid.commutative = prop-Table-<>-sym
 
+{-# COMPILE AGDA2HS iCommutativeTable #-}
+
 -- | Index the items in a 'Bag' by a function.
 indexBy : ∀ {k} ⦃ _ : Ord k ⦄ → Bag a → (a → k) → Table k a
 indexBy xs f = foldBag (λ x → singleton (f x) x) xs
 
+{-# COMPILE AGDA2HS indexBy #-}
+
 -- | Forget the index.
 elements : ∀ {k} ⦃ _ : Ord k ⦄ → Table k a → Bag a
 elements = foldMap id ∘ getTable
+
+{-# COMPILE AGDA2HS elements #-}
 
 -- | For each key, return the 'cartesianProduct' of 'Bag's.
 merge : ∀ {k} ⦃ _ : Ord k ⦄ → Table k a → Table k b → Table k (a × b)
@@ -194,6 +215,8 @@ merge xs ys = record
   ; invariant-lookup =
     prop-invariant-mergeRaw (invariant-lookup xs) (invariant-lookup ys)
   }
+
+{-# COMPILE AGDA2HS merge #-}
 
 {-----------------------------------------------------------------------------
     Properties

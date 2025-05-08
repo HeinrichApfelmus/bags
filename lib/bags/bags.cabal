@@ -41,14 +41,14 @@ common language
   default-language: Haskell2010
 
 common opts-exe
-  ghc-options: -threaded -rtsopts -Wall -Wredundant-constraints
+  ghc-options: -threaded -rtsopts -Wall -Wno-redundant-constraints
 
   if flag(release)
     ghc-options: -O2 -Werror
 
 common opts-lib
   ghc-options:
-    -Wall -Wcompat -Wredundant-constraints -Wincomplete-uni-patterns
+    -Wall -Wcompat -Wno-redundant-constraints -Wincomplete-uni-patterns
     -Wincomplete-record-updates -Wunused-packages
 
   if flag(release)
@@ -70,11 +70,14 @@ library
     Data.Bag
     Data.Monoid.Extra
     Data.Monoid.Refinement
+    Data.Table
   other-modules:
     Data.Bag.Def
     Data.Bag.Quotient
     Data.Bag.Raw
+    Data.Table.Def
   autogen-modules:
     Data.Bag.Def
     Data.Bag.Raw
     Data.Monoid.Refinement
+    Data.Table.Def
