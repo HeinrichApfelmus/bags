@@ -71,14 +71,6 @@ CommutativeSum : ⦃ _ : Num a ⦄ → ⦃ IsLawfulNum a ⦄ → Commutative a
 CommutativeSum .monoid = MonoidSum
 CommutativeSum .commutative = +-comm
 
-CommutativeConj : Commutative Bool
-CommutativeConj .monoid = MonoidConj
-CommutativeConj .commutative = prop-&&-sym
-
-CommutativeDisj : Commutative Bool
-CommutativeDisj .monoid = MonoidDisj
-CommutativeDisj .commutative = prop-||-sym
-
 {- *-comm is not part of IsLawfulNum yet?!
 
 CommutativeProduct : ⦃ _ : Num a ⦄ → ⦃ _ : IsLawfulNum a ⦄ → Commutative a
