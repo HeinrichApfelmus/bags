@@ -140,3 +140,21 @@ prop-~-foldBag f comm Eq-Refl = refl
 prop-~-foldBag f comm (Eq-Sym rel) = sym (prop-~-foldBag f comm rel)
 prop-~-foldBag f comm (Eq-Trans rel1 rel2) =
   trans (prop-~-foldBag f comm rel1) (prop-~-foldBag f comm rel2)
+
+-- | Any homomorphism to a monoid (not necessarily commutative)
+-- that respects the equivalence relation is equal to 'foldBag'.
+prop-foldBag-unique
+  : ∀ ⦃ _ : Monoid b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (g : Bag a → b)
+  → (∀ {x x'} → x ~ x' → g x ≡ g x')
+  → (g empty ≡ mempty)
+  → (∀ {xs ys} → g (union xs ys) ≡ g xs <> g ys)
+  → ∀ (xs : Bag a) → foldBag (g ∘ singleton) xs ≡ g xs
+--
+prop-foldBag-unique g equiv hom-empty hom-<> (Single x) = refl
+prop-foldBag-unique g equiv hom-empty hom-<> Empty = sym hom-empty
+prop-foldBag-unique g equiv hom-empty hom-<> (Union xs ys)
+  using lemma ← equiv (Eq-Sym (prop-union-constructor xs ys))
+  rewrite prop-foldBag-unique g equiv hom-empty hom-<> xs
+  | prop-foldBag-unique g equiv hom-empty hom-<> ys
+  | lemma
+  = sym hom-<>
