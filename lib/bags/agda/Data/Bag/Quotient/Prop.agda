@@ -137,6 +137,16 @@ prop-foldBag-function-<> {a} f g =
         rhs xs <> rhs ys
       ∎
 
+-- | 'foldBag' is a homomorphism in the function argument as well.
+prop-morphism-foldBag-fun
+  : ∀ {a b} ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (xs : Bag a)
+  → Monoid.IsHomomorphism (λ (f : a → b) → foldBag f xs)
+--
+prop-morphism-foldBag-fun xs =
+  Monoid.MkIsHomomorphism
+    (prop-foldBag-function-mempty xs)
+    (λ f g → prop-foldBag-function-<> f g xs)
+
 -- | 'foldBag' that maps to 'singleton' is the identity.
 prop-foldBag-function-singleton
   : ∀ (xs : Bag b)
