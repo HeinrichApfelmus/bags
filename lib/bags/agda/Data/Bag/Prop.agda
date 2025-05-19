@@ -31,7 +31,7 @@ open import Control.Monad.Prop as Monad
 record IsCommutativeMonad (m : Type → Type) ⦃ _ : Monad m ⦄ : Type₁ where
   field
     -- Different monadic actions commute
-    prop-monad-sym : ∀ {a b : Type} (mx : m a) (my : m b) (mz : a → b → m c)
+    prop-monad-sym : ∀ {a b} (mx : m a) (my : m b) (mz : a → b → m c)
       → mx >>= (λ x → my >>= (λ y → mz x y))
         ≡ my >>= (λ y → mx >>= (λ x → mz x y))
 
@@ -127,8 +127,18 @@ instance
   iDistributiveMonadPlusBag : IsDistributiveMonadPlus Bag
   iDistributiveMonadPlusBag .mplus-bind x y k = prop-foldBag-<> k x y
 
-postulate instance
-  iCommutativeMonadBag      : IsCommutativeMonad Bag
+  iCommutativeMonadBag : IsCommutativeMonad Bag
+  iCommutativeMonadBag .IsCommutativeMonad.prop-monad-sym mx my mz =
+      prop-Bag-equality-2 lhs rhs
+        (λ xs → Monoid.prop-morphism-∘ _ _ (Monoid.prop-morphism-curry _ (λ x → prop-morphism-foldBag _)) (prop-morphism-foldBag-fun xs))
+        (λ xs → prop-morphism-foldBag _)
+        (λ ys → prop-morphism-foldBag _)
+        (λ ys → Monoid.prop-morphism-∘ _ _ (Monoid.prop-morphism-curry _ (λ y → prop-morphism-foldBag _)) (prop-morphism-foldBag-fun ys))
+        (λ x y → refl)
+        mx my
+    where
+      lhs = λ xs ys → xs >>= (λ x → ys >>= (λ y → mz x y))
+      rhs = λ xs ys → ys >>= (λ y → xs >>= (λ x → mz x y))
 
 {-----------------------------------------------------------------------------
     Properties
