@@ -5,6 +5,7 @@ open import Haskell.Prim
 open import Haskell.Prim.Monoid
 
 open import Haskell.Law
+open import Haskell.Law.Extensionality
 
 -------------------------------------------------------------------------------
 -- Monoid Homomorphisms
@@ -38,3 +39,15 @@ prop-morphism-∘ f g prop-f prop-g = record
   ; homo-<> = λ x y →
     trans (cong g (homo-<> prop-f x y)) (homo-<> prop-g (f x) (f y))
   }
+
+-- | Parametrizations of homomorphisms are homomorphisms.
+--
+-- @f@ can be viewed as a function
+-- from the @Monoid a@ to the @Monoid (b → c)@.
+prop-morphism-curry
+  : ∀ ⦃ _ : Monoid a ⦄ ⦃ _ : Monoid c ⦄ (f : a → b → c)
+  → (∀ y → IsHomomorphism (λ x → f x y))
+  → IsHomomorphism f
+--
+prop-morphism-curry f eq .homo-mempty = ext (λ y → eq y .homo-mempty)
+prop-morphism-curry f eq .homo-<> x1 x2 = ext (λ y → eq y .homo-<> x1 x2)
