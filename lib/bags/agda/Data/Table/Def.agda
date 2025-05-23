@@ -134,7 +134,7 @@ open Table public
 {-# COMPILE AGDA2HS Table newtype #-}
 
 -- | Two Tables are equal if they contain the same 'Map'.
-@0 prop-Table-equality
+prop-Table-equality
   : ∀ {k} ⦃ _ : Ord k ⦄ {xs ys : Table k a}
   → getTable xs ≡ getTable ys
   → xs ≡ ys
@@ -179,7 +179,7 @@ instance
 {-# COMPILE AGDA2HS iMonoidTable #-}
 
 -- | Union with the empty 'Table' on the left is empty.
-@0 prop-Table-<>-mempty-x
+prop-Table-<>-mempty-x
   : ∀ {k} ⦃ _ : Ord k ⦄ (xs : Table k a)
   → mempty <> xs ≡ xs
 --
@@ -187,7 +187,7 @@ prop-Table-<>-mempty-x {a} (MkTable xs inv-x) =
   prop-Table-equality Map.prop-unionWith-empty-x
 
 -- | Union with the empty 'Table' on the right is empty.
-@0 prop-Table-<>-x-mempty
+prop-Table-<>-x-mempty
   : ∀ {k} ⦃ _ : Ord k ⦄ (xs : Table k a)
   → xs <> mempty ≡ xs
 --
@@ -195,7 +195,7 @@ prop-Table-<>-x-mempty {a} (MkTable xs inv-x) =
   prop-Table-equality Map.prop-unionWith-x-empty
 
 -- | Union of 'Table' is associative
-@0 prop-Table-<>-assoc
+prop-Table-<>-assoc
   : ∀ {k} ⦃ _ : Ord k ⦄ (xs ys zs : Table k a)
   → (xs <> ys) <> zs ≡ xs <> (ys <> zs)
 --
@@ -205,11 +205,11 @@ prop-Table-<>-assoc {a} (MkTable xs inv-x) (MkTable ys inv-y) (MkTable zs inv-z)
     prop-f-assoc = λ x y z → sym (Monoid.associativity x y z)
 
 instance
-  @0 isLawfulSemigroupTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid.IsLawfulSemigroup (Table k a)
+  isLawfulSemigroupTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid.IsLawfulSemigroup (Table k a)
   isLawfulSemigroupTable .Monoid.associativity =
     λ x y z → sym (prop-Table-<>-assoc x y z)
 
-  @0 isLawfulMonoidTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid.IsLawfulMonoid (Table k a)
+  isLawfulMonoidTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid.IsLawfulMonoid (Table k a)
   isLawfulMonoidTable .Monoid.leftIdentity = prop-Table-<>-mempty-x
   isLawfulMonoidTable .Monoid.rightIdentity = prop-Table-<>-x-mempty
   isLawfulMonoidTable .Monoid.concatenation [] = refl
