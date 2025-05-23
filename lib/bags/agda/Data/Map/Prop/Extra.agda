@@ -79,6 +79,73 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
 
 {-----------------------------------------------------------------------------
     Proofs
+    unionWith
+------------------------------------------------------------------------------}
+module _ {k : Type} ⦃ _ : Ord k ⦄ where
+
+  --
+  prop-unionWith-empty-x
+    : ∀ {f : a → a → a} {ma : Map k a}
+    → unionWith f empty ma ≡ ma
+  --
+  prop-unionWith-empty-x {a} {f} {ma} = prop-equality eq-key
+    where
+      eq-key
+        : ∀ (key : k)
+        → lookup key (unionWith f empty ma)
+          ≡ lookup key ma
+      eq-key key
+        rewrite prop-lookup-unionWith key f empty ma
+        rewrite prop-lookup-empty {k} {a} key
+        = refl
+
+  --
+  prop-unionWith-x-empty
+    : ∀ {f : a → a → a} {ma : Map k a}
+    → unionWith f ma empty ≡ ma
+  --
+  prop-unionWith-x-empty {a} {f} {ma} = prop-equality eq-key
+    where
+      eq-key
+        : ∀ (key : k)
+        → lookup key (unionWith f ma empty)
+          ≡ lookup key ma
+      eq-key key
+        rewrite prop-lookup-unionWith key f ma empty
+        rewrite prop-lookup-empty {k} {a} key
+        with lookup key ma
+      ... | Nothing = refl
+      ... | Just x  = refl
+
+  --
+  prop-unionWith-assoc
+    : ∀ {f : a → a → a} {ma mb mc : Map k a}
+    → (∀ x y z → f (f x y) z ≡ f x (f y z))
+    → unionWith f (unionWith f ma mb) mc
+      ≡ unionWith f ma (unionWith f mb mc)
+  --
+  prop-unionWith-assoc {a} {f} {ma} {mb} {mc} f-assoc = prop-equality eq-key
+    where
+      eq-key
+        : ∀ (key : k)
+        → lookup key (unionWith f (unionWith f ma mb) mc)
+          ≡ lookup key (unionWith f ma (unionWith f mb mc))
+      eq-key key
+        rewrite prop-lookup-unionWith key f (unionWith f ma mb) mc
+        rewrite prop-lookup-unionWith key f ma (unionWith f mb mc)
+        rewrite prop-lookup-unionWith key f ma mb
+        rewrite prop-lookup-unionWith key f mb mc
+        with lookup key ma | lookup key mb
+      ... | Nothing | Nothing = refl
+      ... | Nothing | Just y  = refl
+      ... | Just x  | Nothing = refl
+      ... | Just x  | Just y
+          with lookup key mc
+      ...   | Nothing = refl
+      ...   | Just z  = cong Just (f-assoc x y z)
+
+{-----------------------------------------------------------------------------
+    Proofs
     intersectionWith
 ------------------------------------------------------------------------------}
 module _ {k : Type} ⦃ _ : Ord k ⦄ where
