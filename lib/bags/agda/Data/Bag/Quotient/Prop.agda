@@ -32,7 +32,7 @@ prop-morphism-foldBag f = Monoid.MkIsHomomorphism refl (λ x y → refl)
 -- * And they are equal on 'singleton'.
 --   With the rewrite rules, this property can be computed.
 prop-Bag-equality
-  : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f g : Bag a → b)
+  : ∀ ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (f g : Bag a → b)
   → @0 Monoid.IsHomomorphism f → @0 Monoid.IsHomomorphism g
   → (∀ x → f (singleton x) ≡ g (singleton x))
   → ∀ xs → f xs ≡ g xs
@@ -50,7 +50,7 @@ prop-Bag-equality f g hom-f hom-g eq-singleton xs =
 
 -- | Proof principle for functions with two 'Bag' arguments.
 prop-Bag-equality-2
-  : ∀ ⦃ _ : Monoid.Commutative c ⦄ (f g : Bag a → Bag b → c)
+  : ∀ ⦃ _ : Monoid.Commutative c ⦄ ⦃ _ : IsLawfulMonoid c ⦄ (f g : Bag a → Bag b → c)
   → @0 (∀ xs → Monoid.IsHomomorphism (λ ys → f xs ys))
   → @0 (∀ xs → Monoid.IsHomomorphism (λ ys → g xs ys))
   → @0 (∀ ys → Monoid.IsHomomorphism (λ xs → f xs ys))
