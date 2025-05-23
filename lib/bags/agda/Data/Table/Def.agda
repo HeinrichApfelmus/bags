@@ -6,13 +6,15 @@ module Data.Table.Def where
 open import Haskell.Prelude hiding (lookup; null)
 
 open import Data.Bag using (Bag; null; foldBag)
-import Data.Bag as Bag
+import      Data.Bag as Bag
 open import Data.Map using (Map)
-import Data.Map as Map
+import      Data.Map as Map
+import      Data.Map.Prop.Extra as Map
 
 open import Haskell.Law.Equality
 open import Haskell.Law.Extensionality
 open import Haskell.Law.Maybe using (Just-injective)
+import      Haskell.Law.Monoid as Monoid
 
 import Data.Monoid.Morphism as Monoid
 import Data.Monoid.Refinement as Monoid
@@ -175,6 +177,45 @@ instance
 
 {-# COMPILE AGDA2HS iSemigroupTable #-}
 {-# COMPILE AGDA2HS iMonoidTable #-}
+
+-- | Union with the empty 'Table' on the left is empty.
+@0 prop-Table-<>-mempty-x
+  : ∀ {k} ⦃ _ : Ord k ⦄ (xs : Table k a)
+  → mempty <> xs ≡ xs
+--
+prop-Table-<>-mempty-x {a} (MkTable xs inv-x) =
+  prop-Table-equality Map.prop-unionWith-empty-x
+
+-- | Union with the empty 'Table' on the right is empty.
+@0 prop-Table-<>-x-mempty
+  : ∀ {k} ⦃ _ : Ord k ⦄ (xs : Table k a)
+  → xs <> mempty ≡ xs
+--
+prop-Table-<>-x-mempty {a} (MkTable xs inv-x) =
+  prop-Table-equality Map.prop-unionWith-x-empty
+
+-- | Union of 'Table' is associative
+@0 prop-Table-<>-assoc
+  : ∀ {k} ⦃ _ : Ord k ⦄ (xs ys zs : Table k a)
+  → (xs <> ys) <> zs ≡ xs <> (ys <> zs)
+--
+prop-Table-<>-assoc {a} (MkTable xs inv-x) (MkTable ys inv-y) (MkTable zs inv-z) =
+    prop-Table-equality (Map.prop-unionWith-assoc prop-f-assoc)
+  where
+    prop-f-assoc = λ x y z → sym (Monoid.associativity x y z)
+
+instance
+  @0 isLawfulSemigroupTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid.IsLawfulSemigroup (Table k a)
+  isLawfulSemigroupTable .Monoid.associativity =
+    λ x y z → sym (prop-Table-<>-assoc x y z)
+
+  @0 isLawfulMonoidTable : ∀ {k} ⦃ _ : Ord k ⦄ → Monoid.IsLawfulMonoid (Table k a)
+  isLawfulMonoidTable .Monoid.leftIdentity = prop-Table-<>-mempty-x
+  isLawfulMonoidTable .Monoid.rightIdentity = prop-Table-<>-x-mempty
+  isLawfulMonoidTable .Monoid.concatenation [] = refl
+  isLawfulMonoidTable .Monoid.concatenation (x ∷ xs)
+    rewrite (Monoid.concatenation {{_}} {{isLawfulMonoidTable}} xs)
+    = refl
 
 -- | The semigroup operation on 'Table' is commutative.
 @0 prop-Table-<>-sym
