@@ -66,7 +66,8 @@ prop-size-<> xs ys = refl
 ------------------------------------------------------------------------------}
 --
 prop-foldBag-associative
-  : ∀ ⦃ _ : Monoid.Commutative c ⦄ (g : b → c) (f : a → Bag b) (xs : Bag a)
+  : ∀ ⦃ _ : Monoid.Commutative c ⦄ ⦃ _ : IsLawfulMonoid c ⦄
+    (g : b → c) (f : a → Bag b) (xs : Bag a)
   → foldBag (foldBag g ∘ f) xs ≡ foldBag g (foldBag f xs)
 --
 prop-foldBag-associative g f =

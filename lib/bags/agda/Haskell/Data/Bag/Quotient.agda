@@ -67,7 +67,7 @@ postulate
 
   -- Universal property, uniqueness
   prop-foldBag-unique
-    : ∀ ⦃ _ : Monoid.Commutative b ⦄ (g : Bag a → b)
+    : ∀ ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (g : Bag a → b)
     → @0 Monoid.IsHomomorphism g
     → ∀ (xs : Bag a) → foldBag (g ∘ singleton) xs ≡ g xs
 
