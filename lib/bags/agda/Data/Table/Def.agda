@@ -21,9 +21,9 @@ import Data.Monoid.Refinement as Monoid
 
 ------------------------------------------------------------------------------
 -- Move out: Elimination of irrelevant ⊥
-
-⊥-elim-irr : ∀ {ℓ} {Whatever : Type ℓ} → .⊥ → Whatever
-⊥-elim-irr ()
+private
+  ⊥-elim-irr : ∀ {ℓ} {Whatever : Type ℓ} → .⊥ → Whatever
+  ⊥-elim-irr ()
 
 ------------------------------------------------------------------------------
 -- Move out: Helper function on "Data.Maybe"

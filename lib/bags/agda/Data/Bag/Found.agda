@@ -1,0 +1,190 @@
+-- | Monoid for finding an element inside a 'Bag'.
+module Data.Bag.Found where
+
+open import Haskell.Prelude
+open import Haskell.Data.Maybe
+
+open import Haskell.Law.Eq
+open import Haskell.Law.Equality
+open import Haskell.Law.Monoid
+
+open import Haskell.Data.Bag.Quotient
+open import Data.Bag.Quotient.Prop
+
+import Data.Monoid.Refinement as Monoid
+
+------------------------------------------------------------------------------
+-- Move out: Elimination of irrelevant ⊥
+
+private
+  ⊥-elim-irr : ∀ {ℓ} {Whatever : Type ℓ} → .⊥ → Whatever
+  ⊥-elim-irr ()
+
+{-----------------------------------------------------------------------------
+    Type
+------------------------------------------------------------------------------}
+-- | Find a known item in a 'Bag',
+-- and also return a 'Bag' without that item.
+--
+-- The item is part of the type, but erased.
+record Found (a : Type) (@0 x : a) : Type where
+  constructor MkFound
+  field
+    found : Maybe a
+    rest  : Bag a
+
+    @0 . invariant : ∀ y → found ≡ Just y → x ≡ y
+
+open Found public
+
+{-# COMPILE AGDA2HS Found #-}
+
+{-----------------------------------------------------------------------------
+    Equality
+------------------------------------------------------------------------------}
+-- | Basic lemma about two 'Found' being equal.
+equality-Found
+  : ∀ {@0 z : a} (x y : Found a z)
+  → found x ≡ found y → rest x ≡ rest y → x ≡ y
+--
+equality-Found x y refl refl = refl
+
+-- | Use a decidable equality to get 
+recompute-Eq : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x y : a)
+  → .(x ≡ y) → x ≡ y
+--
+recompute-Eq x y eq-irr
+  with x == y in eq
+... | False = ⊥-elim-irr (nequality x y eq eq-irr)
+... | True  = equality x y eq
+
+-- | Advanced lemma about two 'Found' being equal.
+@0 equality-Found-1
+  : ∀ {@0 z : a} ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄
+  → (x y : Found a z)
+  → isJust (found x) ≡ isJust (found y)
+  → (found x ≡ found y → rest x ≡ rest y)
+  → x ≡ y
+--
+equality-Found-1 (MkFound mx rx ix) (MkFound my ry iy) eq eq-rest
+  with mx | my
+... | Nothing | Nothing rewrite eq-rest refl = refl
+... | Nothing | Just y  = case eq of λ ()
+... | Just x  | Nothing = case eq of λ ()
+... | Just x  | Just y  = equality-Found _ _ Just-x≡y (eq-rest Just-x≡y)
+  where
+    x≡y : x ≡ y
+    x≡y = recompute-Eq x y (trans (sym (ix x refl)) (iy y refl))
+
+    Just-x≡y = cong Just x≡y
+
+{-----------------------------------------------------------------------------
+    Operations
+------------------------------------------------------------------------------}
+emptyFound : ∀ {@0 x : a} → Found a x
+emptyFound = MkFound Nothing mempty (λ y ())
+
+{-# COMPILE AGDA2HS emptyFound #-}
+
+unionFound : ∀ {@0 x : a} → Found a x → Found a x → Found a x
+unionFound (MkFound Nothing r1 i1) (MkFound Nothing r2 _) =
+  MkFound Nothing (r1 <> r2) i1
+unionFound (MkFound Nothing r1 _) (MkFound (Just y2) r2 i2) =
+  MkFound (Just y2) (r1 <> r2) i2
+unionFound (MkFound (Just y1) r1 i1) (MkFound Nothing r2 _) =
+  MkFound (Just y1) (r1 <> r2) i1
+unionFound (MkFound (Just y1) r1 i1) (MkFound (Just y2) r2 _) =
+  MkFound (Just y1) (r1 <> singleton y2 <> r2) i1
+
+{-# COMPILE AGDA2HS unionFound #-}
+
+instance
+  iSemigroupFound : {@0 x : a} → Semigroup (Found a x)
+  iSemigroupFound ._<>_ = unionFound
+
+  iDefaultMonoid : {@0 x : a} → DefaultMonoid (Found a x)
+  iDefaultMonoid .DefaultMonoid.mempty = emptyFound
+
+  iMonoidFound : {@0 x : a} → Monoid (Found a x)
+  iMonoidFound = record {DefaultMonoid iDefaultMonoid}
+
+{-# COMPILE AGDA2HS iSemigroupFound #-}
+{-# COMPILE AGDA2HS iMonoidFound #-}
+
+{-----------------------------------------------------------------------------
+    Properties
+------------------------------------------------------------------------------}
+instance
+  iIsLawfulSemigroupFound : ∀ {@0 x : a} → IsLawfulSemigroup (Found a x)
+  iIsLawfulSemigroupFound .associativity
+      (MkFound mx rx _) (MkFound my ry _) (MkFound mz rz _)
+    with mx | my | mz
+  ... | Nothing | Nothing | Nothing rewrite associativity rx ry rz = refl
+  ... | Nothing | Nothing | Just z  rewrite associativity rx ry rz = refl
+  ... | Nothing | Just y  | Nothing rewrite associativity rx ry rz = refl
+  ... | Nothing | Just y  | Just z
+    rewrite associativity rx ry (singleton z <> rz) = refl
+  ... | Just x  | Nothing | Nothing rewrite associativity rx ry rz = refl
+  ... | Just x  | Nothing | Just z
+    rewrite prop-<>-sym (singleton z) rz
+    | prop-<>-sym (singleton z) (ry <> rz)
+    | sym (associativity ry rz (singleton z))
+    | sym (associativity rx ry (rz <> singleton z))
+    = refl
+  ... | Just x  | Just y  | Nothing
+    rewrite sym (associativity rx (singleton y <> ry) rz)
+    | sym (associativity (singleton y) ry rz)
+    = refl
+  ... | Just x  | Just y  | Just z
+    rewrite sym (associativity (singleton y) ry (singleton z <> rz))
+    | sym (associativity rx (singleton y) ry)
+    | sym (associativity rx (singleton y <> ry) (singleton z <> rz))
+    | sym (associativity (singleton y) ry (singleton z <> rz))
+    = refl
+
+  iIsLawfulMonoidFound : ∀ {@0 x : a} → IsLawfulMonoid (Found a x)
+  iIsLawfulMonoidFound .rightIdentity (MkFound mx rx _)
+    with mx
+  ... | Nothing rewrite rightIdentity rx = refl
+  ... | Just x  rewrite rightIdentity rx = refl
+  iIsLawfulMonoidFound .leftIdentity (MkFound my ry _)
+    with my
+  ... | Nothing rewrite leftIdentity ry = refl
+  ... | Just y  rewrite leftIdentity ry = refl
+  iIsLawfulMonoidFound .concatenation [] = refl 
+  iIsLawfulMonoidFound .concatenation (x ∷ xs)
+    rewrite iIsLawfulMonoidFound .IsLawfulMonoid.concatenation xs
+    = refl
+
+
+-- | The monoid 'Found' is commutative.
+--
+-- We rely on the crucial fact that the found item is always the same.
+@0 prop-Found-<>-sym
+  : ∀ {@0 z : a} ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄
+  → (x y : Found a z) → x <> y ≡ y <> x
+--
+prop-Found-<>-sym {z = z} (MkFound mx rx ix) (MkFound my ry iy)
+  with mx | my
+... | Nothing | Nothing rewrite prop-<>-sym rx ry = refl
+... | Nothing | Just y  rewrite prop-<>-sym rx ry = refl
+... | Just x  | Nothing rewrite prop-<>-sym rx ry = refl
+... | Just x  | Just y
+    rewrite prop-<>-sym rx (singleton y <> ry)
+    | sym (associativity (singleton y) ry rx)
+    | associativity ry (singleton x) rx
+    | prop-<>-sym ry (singleton x)
+    | sym (associativity (singleton x) ry rx)
+    | prop-<>-sym ry rx
+    = equality-Found-1 _ _ refl
+      (cong (λ o → singleton o <> rx <> ry) ∘ Just-injective _ _ ∘ sym)
+  where
+    Just-injective : ∀ (x y : b) → Just x ≡ Just y → x ≡ y
+    Just-injective _ _ refl = refl
+
+instance
+  iCommutativeFound
+    : ∀ {@0 z : a}  ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄
+    → Monoid.Commutative (Found a z)
+  iCommutativeFound .Monoid.monoid = iMonoidFound
+  iCommutativeFound .Monoid.commutative = prop-Found-<>-sym
