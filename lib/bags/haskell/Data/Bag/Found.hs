@@ -24,3 +24,16 @@ instance Semigroup (Found a) where
 instance Monoid (Found a) where
     mempty = emptyFound
 
+here :: a -> Found a
+here x = MkFound (Just x) mempty
+
+elsewhere :: a -> Found a
+elsewhere y = MkFound Nothing (singleton y)
+
+putBack :: Found a -> Bag a
+putBack (MkFound Nothing xs) = xs
+putBack (MkFound (Just x) xs) = singleton x <> xs
+
+findOne :: Eq a => a -> a -> Found a
+findOne x y = if x == y then here y else elsewhere y
+

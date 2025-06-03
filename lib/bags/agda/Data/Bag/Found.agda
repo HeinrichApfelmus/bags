@@ -4,6 +4,7 @@ module Data.Bag.Found where
 open import Haskell.Prelude
 open import Haskell.Data.Maybe
 
+open import Haskell.Law.Bool
 open import Haskell.Law.Eq
 open import Haskell.Law.Equality
 open import Haskell.Law.Monoid
@@ -11,6 +12,7 @@ open import Haskell.Law.Monoid
 open import Haskell.Data.Bag.Quotient
 open import Data.Bag.Quotient.Prop
 
+import Data.Monoid.Morphism as Monoid
 import Data.Monoid.Refinement as Monoid
 
 ------------------------------------------------------------------------------
@@ -111,6 +113,24 @@ instance
 {-# COMPILE AGDA2HS iSemigroupFound #-}
 {-# COMPILE AGDA2HS iMonoidFound #-}
 
+-- | We have found the item.
+here : ∀ {@0 z : a} → (x : a) → @0 (x ≡ z) → Found a z
+here x refl = MkFound (Just x) mempty (λ y → λ { refl → refl })
+
+-- | We have an item, but the item that we are looking for is elsewhere.
+elsewhere : ∀ {@0 z : a} (y : a) → Found a z
+elsewhere y = MkFound Nothing (singleton y) (λ y ())
+
+{-# COMPILE AGDA2HS here #-}
+{-# COMPILE AGDA2HS elsewhere #-}
+
+-- | Put the item back into the 'Bag'.
+putBack : ∀ {@0 z : a} → Found a z → Bag a
+putBack (MkFound Nothing  xs _) = xs
+putBack (MkFound (Just x) xs _) = singleton x <> xs
+
+{-# COMPILE AGDA2HS putBack #-}
+
 {-----------------------------------------------------------------------------
     Properties
 ------------------------------------------------------------------------------}
@@ -188,3 +208,72 @@ instance
     → Monoid.Commutative (Found a z)
   iCommutativeFound .Monoid.monoid = iMonoidFound
   iCommutativeFound .Monoid.commutative = prop-Found-<>-sym
+
+-- | 'putBack' is a homomorphism of 'Monoid'.
+prop-morphism-putBack
+  : ∀ {@0 z : a} → Monoid.IsHomomorphism (putBack {z = z})
+--
+prop-morphism-putBack .Monoid.homo-mempty = refl
+prop-morphism-putBack .Monoid.homo-<> (MkFound mx rx _) (MkFound my ry _)
+  with mx | my
+... | Nothing | Nothing = refl
+... | Nothing | Just y
+  rewrite associativity (singleton y) rx ry
+  | prop-<>-sym (singleton y) rx
+  | sym (associativity rx (singleton y) ry)
+  = refl
+... | Just x  | Nothing
+  rewrite associativity (singleton x) rx ry
+  = refl
+... | Just x  | Just y
+  rewrite associativity (singleton x) rx (singleton y <> ry)
+  = refl
+
+--
+prop-putBack-here
+  : ∀ {@0 z : a} (x : a)
+  → (@0 prf : x ≡ z) → putBack (here x prf) ≡ singleton x
+--
+prop-putBack-here x refl = rightIdentity (singleton x)
+
+{-----------------------------------------------------------------------------
+    Operations
+    findOne
+------------------------------------------------------------------------------}
+-- | 'deleteOne' on a 'singleton' 'Bag'.
+findOne : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄ → (x : a) → a → Found a x
+findOne x y =
+  if x == y
+  then (λ ⦃ @0 eq ⦄ → here y (sym (equality _ _ eq)))
+  else elsewhere y 
+
+{-# COMPILE AGDA2HS findOne #-}
+
+--
+prop-putBack-findOne-singleton
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x y : a)
+  → putBack (foldBag (findOne x) (singleton y)) ≡ singleton y
+--
+prop-putBack-findOne-singleton {a} x y =
+    helper (x == y) refl
+  where
+    helper : (b : Bool) → (x == y) ≡ b
+      → putBack (foldBag (findOne x) (singleton y)) ≡ singleton y
+    helper True eq =
+      trans (cong putBack (ifTrueEqThen _ eq)) (prop-putBack-here y (sym (equality _ _ eq)))
+    helper False eq =
+      trans (cong putBack (ifFalseEqElse _ eq)) refl
+
+-- | Finding an item and putting it back is equivalent to no change.
+prop-putBack-findOne
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
+  → putBack (foldBag (findOne x) xs) ≡ xs
+--
+prop-putBack-findOne x = 
+    prop-Bag-equality lhs rhs
+      (Monoid.prop-morphism-∘ _ _ (prop-morphism-foldBag _) prop-morphism-putBack)
+      (Monoid.prop-morphism-id)
+      (λ y → prop-putBack-findOne-singleton x y)
+  where 
+    lhs = λ xs → putBack (foldBag (findOne x) xs)
+    rhs = λ xs → xs
