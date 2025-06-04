@@ -6,6 +6,7 @@ open import Haskell.Law.Equality
 open import Haskell.Law.Monoid
 open import Haskell.Law.Num
 
+-------------------------------------------------------------------------------
 -- Boolean monoid under conjunction '(&&)'.
 record Conj : Type where
   constructor MkConj
@@ -43,6 +44,45 @@ instance
 {-# COMPILE AGDA2HS iSemigroupConj #-}
 {-# COMPILE AGDA2HS iMonoidConj #-}
 
+-------------------------------------------------------------------------------
+-- Boolean monoid under disjunction '(||)'.
+record Disj : Type where
+  constructor MkDisj
+  field
+    getDisj : Bool
+
+open Disj public
+
+{-# COMPILE AGDA2HS Disj newtype #-}
+
+instance
+  iSemigroupDisj : Semigroup Disj
+  iSemigroupDisj ._<>_ (MkDisj x) (MkDisj y) = MkDisj (x || y)
+
+  iDefaultMonoidDisj : DefaultMonoid Disj
+  iDefaultMonoidDisj .DefaultMonoid.mempty = record{getDisj = False}
+
+  iMonoidDisj : Monoid Disj
+  iMonoidDisj = record{DefaultMonoid iDefaultMonoidDisj}
+
+  isLawfulSemigroupDisj : IsLawfulSemigroup Disj
+  isLawfulSemigroupDisj .associativity (MkDisj False) y z = refl
+  isLawfulSemigroupDisj .associativity (MkDisj True) y z = refl
+
+  isLawfulMonoidDisj : IsLawfulMonoid Disj
+  isLawfulMonoidDisj .rightIdentity (MkDisj False) = refl
+  isLawfulMonoidDisj .rightIdentity (MkDisj True) = refl
+  isLawfulMonoidDisj .leftIdentity (MkDisj False) = refl
+  isLawfulMonoidDisj .leftIdentity (MkDisj True) = refl
+  isLawfulMonoidDisj .concatenation [] = refl
+  isLawfulMonoidDisj .concatenation (x ∷ xs)
+    rewrite (concatenation {{_}} {{isLawfulMonoidDisj}} xs)
+    = refl
+
+{-# COMPILE AGDA2HS iSemigroupDisj #-}
+{-# COMPILE AGDA2HS iMonoidDisj #-}
+
+-------------------------------------------------------------------------------
 -- Monoid under addition.
 record Sum' a : Type where
   constructor MkSum

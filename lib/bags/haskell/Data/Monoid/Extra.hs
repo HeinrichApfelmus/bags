@@ -10,6 +10,14 @@ instance Semigroup Conj where
 instance Monoid Conj where
     mempty = MkConj True
 
+newtype Disj = MkDisj{getDisj :: Bool}
+
+instance Semigroup Disj where
+    MkDisj x <> MkDisj y = MkDisj (x || y)
+
+instance Monoid Disj where
+    mempty = MkDisj False
+
 newtype Sum' a = MkSum{getSum' :: a}
 
 instance (Num a) => Semigroup (Sum' a) where
