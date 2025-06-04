@@ -1,7 +1,8 @@
 module Data.Bag.Found where
 
 import Prelude hiding (null, filter, map, concatMap)
-import Data.Bag.Quotient (Bag, singleton)
+import Data.Bag.Quotient (Bag, foldBag, singleton)
+import qualified Data.Monoid.Refinement (Commutative)
 
 data Found a = MkFound{found :: Maybe a, rest :: Bag a}
 
@@ -34,6 +35,12 @@ putBack :: Found a -> Bag a
 putBack (MkFound Nothing xs) = xs
 putBack (MkFound (Just x) xs) = singleton x <> xs
 
+instance (Eq a) => Data.Monoid.Refinement.Commutative (Found a)
+         where
+
 findOne :: Eq a => a -> a -> Found a
 findOne x y = if x == y then here y else elsewhere y
+
+deleteOne :: Eq a => a -> Bag a -> Bag a
+deleteOne x = (\ r -> rest r) . foldBag (findOne x)
 

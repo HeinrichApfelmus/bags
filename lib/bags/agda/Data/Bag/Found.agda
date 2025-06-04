@@ -184,7 +184,7 @@ instance
 --
 -- We rely on the crucial fact that the found item is always the same.
 @0 prop-Found-<>-sym
-  : ∀ {@0 z : a} ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄
+  : ∀ {@0 z : a} ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄
   → (x y : Found a z) → x <> y ≡ y <> x
 --
 prop-Found-<>-sym {z = z} (MkFound mx rx ix) (MkFound my ry iy)
@@ -207,10 +207,12 @@ prop-Found-<>-sym {z = z} (MkFound mx rx ix) (MkFound my ry iy)
 
 instance
   iCommutativeFound
-    : ∀ {@0 z : a}  ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄
+    : ∀ {@0 z : a}  ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄
     → Monoid.Commutative (Found a z)
   iCommutativeFound .Monoid.monoid = iMonoidFound
   iCommutativeFound .Monoid.commutative = prop-Found-<>-sym
+
+{-# COMPILE AGDA2HS iCommutativeFound #-}
 
 {-----------------------------------------------------------------------------
     Properties
@@ -381,3 +383,43 @@ prop-findOne-member {a} x xs =
       → Monoid.getDisj (foundIt fx) ≡ isJust (found fx)
     lemma (MkFound Nothing  _ _) = refl
     lemma (MkFound (Just x) _ _) = refl
+
+{-----------------------------------------------------------------------------
+    Operations and Properties
+    deleteOne
+------------------------------------------------------------------------------}
+-- | Delete an element from a 'Bag'.
+deleteOne
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄
+  → a → Bag a → Bag a
+deleteOne x = rest ∘ foldBag (findOne x)
+
+{-# COMPILE AGDA2HS deleteOne #-}
+
+--
+@0 prop-deleteOne-member-True
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
+  → member x xs ≡ True
+  → xs ≡ singleton x <> deleteOne x xs
+--
+prop-deleteOne-member-True x xs eq-member
+  with eq-found ← prop-findOne-member x xs
+  with eq-putback ← prop-putBack-findOne x xs
+  with foldBag (findOne x) xs
+... | MkFound Nothing  _ _ = case trans eq-found eq-member of λ ()
+... | MkFound (Just x1) _ ix1
+  rewrite recompute-Eq x x1 (ix1 x1 refl)
+  = sym eq-putback
+
+--
+prop-deleteOne-member-False
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
+  → member x xs ≡ False
+  → xs ≡ deleteOne x xs
+--
+prop-deleteOne-member-False x xs eq-member
+  with eq-found ← prop-findOne-member x xs
+  with eq-putback ← prop-putBack-findOne x xs
+  with foldBag (findOne x) xs
+... | MkFound Nothing  _ _ = sym eq-putback
+... | MkFound (Just _) _ _ = case trans eq-found eq-member of λ ()
