@@ -160,9 +160,16 @@ count x = size ∘ filter (x ==_)
 
 {-# COMPILE AGDA2HS count #-}
 
--- | Check whether an item is contained in the 'Bag' at least once.
+-- | Test whether an item is contained in the 'Bag' at least once,
+-- 'Monoid' version.
+mmember : ⦃ Eq a ⦄ → a → Bag a → Disj
+mmember x = foldBag (λ y → if x == y then MkDisj True else mempty)
+
+{-# COMPILE AGDA2HS mmember #-}
+
+-- | Test whether an item is contained in the 'Bag' at least once.
 member : ⦃ Eq a ⦄ → a → Bag a → Bool
-member x ys = 0 < count x ys
+member x = getDisj ∘ mmember x
 
 {-# COMPILE AGDA2HS member #-}
 

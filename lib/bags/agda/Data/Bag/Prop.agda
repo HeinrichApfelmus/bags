@@ -214,6 +214,13 @@ prop-morphism-mnull
 --
 prop-morphism-mnull = prop-morphism-foldBag _
 
+-- | 'member' is a monoid homomorphism.
+prop-morphism-mmember
+  : ∀ ⦃ _ : Eq a ⦄ (x : a)
+  → Monoid.IsHomomorphism ⦃ iMonoidBag {a} ⦄ (mmember x)
+--
+prop-morphism-mmember _ = prop-morphism-foldBag _
+
 -- | 'cartesianProduct' is a monoid homomorphism in its first argument.
 prop-morphism-cartesianProduct-1
   : ∀ (ys : Bag b)
