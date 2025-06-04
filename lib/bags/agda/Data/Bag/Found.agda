@@ -10,8 +10,11 @@ open import Haskell.Law.Equality
 open import Haskell.Law.Monoid
 
 open import Haskell.Data.Bag.Quotient
+open import Data.Bag.Def
+open import Data.Bag.Prop
 open import Data.Bag.Quotient.Prop
 
+import Data.Monoid.Extra as Monoid
 import Data.Monoid.Morphism as Monoid
 import Data.Monoid.Refinement as Monoid
 
@@ -209,6 +212,11 @@ instance
   iCommutativeFound .Monoid.monoid = iMonoidFound
   iCommutativeFound .Monoid.commutative = prop-Found-<>-sym
 
+{-----------------------------------------------------------------------------
+    Properties
+    putBack
+------------------------------------------------------------------------------}
+
 -- | 'putBack' is a homomorphism of 'Monoid'.
 prop-morphism-putBack
   : ∀ {@0 z : a} → Monoid.IsHomomorphism (putBack {z = z})
@@ -235,6 +243,35 @@ prop-putBack-here
   → (@0 prf : x ≡ z) → putBack (here x prf) ≡ singleton x
 --
 prop-putBack-here x refl = rightIdentity (singleton x)
+
+{-----------------------------------------------------------------------------
+    Properties
+    foundIt
+------------------------------------------------------------------------------}
+
+-- | Test whether we have found an element.
+foundIt : ∀ {@0 z : a} → Found a z → Monoid.Disj
+foundIt (MkFound Nothing  _ _) = mempty
+foundIt (MkFound (Just _) _ _) = Monoid.MkDisj True
+
+-- | 'foundIt' is a monoid homomorphism.
+prop-morphism-foundIt
+  : ∀ {@0 z : a} → Monoid.IsHomomorphism (foundIt {z = z})
+--
+prop-morphism-foundIt .Monoid.homo-mempty = refl
+prop-morphism-foundIt .Monoid.homo-<> (MkFound mx _ _) (MkFound my _ _)
+  with mx | my
+... | Nothing | Nothing = refl
+... | Nothing | Just y  = refl
+... | Just x  | Nothing = refl
+... | Just x  | Just y  = refl
+
+--
+prop-foundIt-here
+  : ∀ {@0 z : a} (x : a)
+  → (@0 prf : x ≡ z) → foundIt (here x prf) ≡ Monoid.MkDisj True
+--
+prop-foundIt-here x refl = refl
 
 {-----------------------------------------------------------------------------
     Operations
@@ -277,3 +314,70 @@ prop-putBack-findOne x =
   where 
     lhs = λ xs → putBack (foldBag (findOne x) xs)
     rhs = λ xs → xs
+
+--
+prop-foundIt-findOne-singleton
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x y : a)
+  → foundIt (foldBag (findOne x) (singleton y)) ≡ mmember x (singleton y)
+--
+prop-foundIt-findOne-singleton {a} x y =
+    helper (x == y) refl
+  where
+    helper : (b : Bool) → (x == y) ≡ b
+      → foundIt (foldBag (findOne x) (singleton y)) ≡ mmember x (singleton y)
+    helper True eq =
+      begin
+        foundIt (foldBag (findOne x) (singleton y))
+      ≡⟨ cong foundIt (ifTrueEqThen _ eq) ⟩
+        foundIt (here y (sym (equality _ _ eq)))
+      ≡⟨ prop-foundIt-here y (sym (equality _ _ eq)) ⟩
+        Monoid.MkDisj True
+      ≡⟨ sym (ifTrueEqThen _ eq) ⟩
+        mmember x (singleton y)
+      ∎
+    helper False eq =
+      begin
+        foundIt (foldBag (findOne x) (singleton y))
+      ≡⟨ cong foundIt (ifFalseEqElse _ eq) ⟩
+        foundIt {z = x} (elsewhere y)
+      ≡⟨⟩
+        mempty
+      ≡⟨ sym (ifFalseEqElse _ eq) ⟩
+        mmember x (singleton y)
+      ∎
+
+--
+prop-foundIt-findOne
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
+  → foundIt (foldBag (findOne x) xs) ≡ mmember x xs
+--
+prop-foundIt-findOne x = 
+    prop-Bag-equality lhs rhs
+      (Monoid.prop-morphism-∘ _ _ (prop-morphism-foldBag _) prop-morphism-foundIt)
+      (prop-morphism-mmember x)
+      (λ y → prop-foundIt-findOne-singleton x y)
+  where 
+    lhs = λ xs → foundIt (foldBag (findOne x) xs)
+    rhs = λ xs → mmember x xs
+
+--
+prop-findOne-member
+  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
+  → isJust (found (foldBag (findOne x) xs)) ≡ member x xs
+--
+prop-findOne-member {a} x xs =
+  begin
+    isJust (found (foldBag (findOne x) xs))
+  ≡⟨ sym (lemma (foldBag (findOne x) xs))⟩
+    Monoid.getDisj (foundIt (foldBag (findOne x) xs))
+  ≡⟨ cong Monoid.getDisj (prop-foundIt-findOne x xs) ⟩
+    Monoid.getDisj (mmember x xs)
+  ≡⟨⟩
+    member x xs
+  ∎
+  where
+    lemma
+      : ∀ {@0 z : a} (fx : Found a z)
+      → Monoid.getDisj (foundIt fx) ≡ isJust (found fx)
+    lemma (MkFound Nothing  _ _) = refl
+    lemma (MkFound (Just x) _ _) = refl
