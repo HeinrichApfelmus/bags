@@ -68,12 +68,12 @@ library
 
   exposed-modules:
     Data.Bag
-    Data.Bag.Found
     Data.Monoid.Extra
     Data.Monoid.Refinement
     Data.Table
   other-modules:
     Data.Bag.Def
+    Data.Bag.Found
     Data.Bag.Quotient
     Data.Bag.Raw
     Data.Table.Def
