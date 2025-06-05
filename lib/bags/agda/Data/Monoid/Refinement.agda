@@ -62,6 +62,11 @@ instance
   iCommutativeConj .commutative record{getConj = x} record{getConj = y}
     = cong (λ o → record{getConj = o}) (prop-&&-sym x y)
 
+  iCommutativeDisj : Commutative Disj
+  iCommutativeDisj .monoid = iMonoidDisj
+  iCommutativeDisj .commutative record{getDisj = x} record{getDisj = y}
+    = cong (λ o → record{getDisj = o}) (prop-||-sym x y)
+
   iCommutativeSum' : ⦃ _ : Num a ⦄ → @0 ⦃ IsLawfulNum a ⦄ → Commutative (Sum' a)
   iCommutativeSum' .monoid = iMonoidSum'
   iCommutativeSum' .commutative record{getSum' = x} record{getSum' = y}
@@ -71,6 +76,7 @@ instance
 {-# COMPILE AGDA2HS iCommutativeTuple₂ #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₃ #-}
 {-# COMPILE AGDA2HS iCommutativeConj #-}
+{-# COMPILE AGDA2HS iCommutativeDisj #-}
 {-# COMPILE AGDA2HS iCommutativeSum' #-}
 
 {- *-comm is not part of IsLawfulNum yet?!

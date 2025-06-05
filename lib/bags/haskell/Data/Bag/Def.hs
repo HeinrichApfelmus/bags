@@ -4,7 +4,7 @@ module Data.Bag.Def where
 
 import Prelude hiding (null, filter, map, concatMap)
 import Data.Bag.Quotient (Bag, foldBag, singleton)
-import Data.Monoid.Extra (Conj(MkConj, getConj), Sum'(MkSum, getSum'))
+import Data.Monoid.Extra (Conj(MkConj, getConj), Disj(MkDisj, getDisj), Sum'(MkSum, getSum'))
 import Data.Monoid.Refinement ()
 
 
@@ -68,8 +68,11 @@ filter p xs
 count :: Eq a => a -> Bag a -> Int
 count x = size . filter (x ==)
 
+mmember :: Eq a => a -> Bag a -> Disj
+mmember x = foldBag (\ y -> if x == y then MkDisj True else mempty)
+
 member :: Eq a => a -> Bag a -> Bool
-member x ys = 0 < count x ys
+member x = (\ r -> getDisj r) . mmember x
 
 cartesianProduct :: Bag a -> Bag b -> Bag (a, b)
 cartesianProduct xs ys

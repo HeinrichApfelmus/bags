@@ -16,4 +16,6 @@ import Data.Bag.Raw
 
 import Data.Table
 
+import Data.Bag.Found
+
 import Data.BagOld -- to be absorbed

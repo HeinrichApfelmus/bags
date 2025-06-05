@@ -73,6 +73,7 @@ library
     Data.Table
   other-modules:
     Data.Bag.Def
+    Data.Bag.Found
     Data.Bag.Quotient
     Data.Bag.Raw
     Data.Table.Def
