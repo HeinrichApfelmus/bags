@@ -1,7 +1,11 @@
 {-# OPTIONS --erasure #-}
 
 -- | Monoids with additional properties.
-module Data.Monoid.Refinement where
+module Data.Monoid.Refinement
+  {-|
+  ; Commutative
+  ; prop-<>-sym
+  -} where
 
 open import Haskell.Prim
 open import Haskell.Prim.Monoid
@@ -17,6 +21,7 @@ open import Data.Monoid.Extra
 -------------------------------------------------------------------------------
 -- Commutative monoids
 
+-- | Commutative monoids.
 record Commutative (a : Type) : Type where
   field
     overlap ⦃ monoid ⦄ : Monoid a
@@ -26,6 +31,15 @@ record Commutative (a : Type) : Type where
 open Commutative ⦃...⦄ public
 
 {-# COMPILE AGDA2HS Commutative class #-}
+
+-- | For a 'Commutative' monoid,
+-- interchanging the two arguments of the monoid operation '(<>)'
+-- does not change the result.
+@0 prop-<>-sym
+  : ∀ ⦃ _ : Commutative a ⦄ (x y : a)
+  → x <> y ≡ y <> x 
+--
+prop-<>-sym = commutative
 
 -------------------------------------------------------------------------------
 -- Instances

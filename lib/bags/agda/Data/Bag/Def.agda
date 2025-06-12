@@ -44,52 +44,52 @@ mnull = foldBag (λ _ → MkConj False)
 
 {-# COMPILE AGDA2HS mnull #-}
 
--- | Test whether the 'Bag' is empty.
+-- | Is the given 'Bag' empty?
 null : Bag a → Bool
 null = getConj ∘ mnull
 
 {-# COMPILE AGDA2HS null #-}
 
--- | Union of all items from the two arguments.
+-- | Union of all items from the two argument 'Bag's.
 -- Synonym for '(<>)'.
 union : Bag a → Bag a → Bag a
 union = _<>_
 
 {-# COMPILE AGDA2HS union #-}
 
--- | A 'Bag' that may contain an element.
+-- | Construct a 'Bag' that may be empty or contains a single item.
 fromMaybe : Maybe a → Bag a
 fromMaybe Nothing  = mempty
 fromMaybe (Just x) = singleton x
 
 {-# COMPILE AGDA2HS fromMaybe #-}
 
--- | Number of items in the Bag, Monoid version
+-- | The number of items in the Bag, Monoid version
 msize : Bag a → Sum' Int
 msize = foldBag (λ _ → MkSum 1)
 
 {-# COMPILE AGDA2HS msize #-}
 
--- | Number of items in the Bag.
+-- | The number of items in the Bag.
 size : Bag a → Int
 size = getSum' ∘ msize
 
 {-# COMPILE AGDA2HS size #-}
 
--- | Apply a function to all elements in the 'Bag'
--- and take the union of the results.
+-- | Apply a function to all items in the 'Bag'
+-- and take the 'union' of the results.
 concatMap : (a → Bag b) → Bag a → Bag b
 concatMap = foldBag
 
 {-# COMPILE AGDA2HS concatMap #-}
 
--- | Apply a function to all elements in the 'Bag'.
+-- | Apply a function to all items in the 'Bag'.
 map : (a → b) → Bag a → Bag b
 map f = concatMap (singleton ∘ f)
 
 {-# COMPILE AGDA2HS map #-}
 
--- | Obtain a 'Bag' with the same items as a given list.
+-- | Construct a 'Bag' with the same items as the given list.
 fromList : List a → Bag a
 fromList = foldMap singleton
 
@@ -148,7 +148,7 @@ instance MonadPlus Bag
     Operations
     Definitions using do-notation
 ------------------------------------------------------------------------------}
--- | Keep only those elements that satisfy a predicate.
+-- | Keep those elements that satisfy a predicate.
 filter : (a → Bool) → Bag a → Bag a
 filter p xs = do x ← xs; guard (p x); pure x
 
@@ -167,19 +167,19 @@ mmember x = foldBag (λ y → if x == y then MkDisj True else mempty)
 
 {-# COMPILE AGDA2HS mmember #-}
 
--- | Test whether an item is contained in the 'Bag' at least once.
+-- | Is the given item contain in the 'Bag' at least once?
 member : ⦃ Eq a ⦄ → a → Bag a → Bool
 member x = getDisj ∘ mmember x
 
 {-# COMPILE AGDA2HS member #-}
 
--- | 'Bag' containing all possible pairs of items.
+-- | Construct the 'Bag' containing all possible pairs of items.
 cartesianProduct : Bag a → Bag b → Bag (a × b)
 cartesianProduct xs ys = do x ← xs; y ← ys; pure (x , y)
 
 {-# COMPILE AGDA2HS cartesianProduct #-}
 
--- | 'Bag' containing all possible pairs of items where
+-- | Construct the 'Bag' containing all possible pairs of items where
 -- the functions yield the same result.
 equijoin
     : ∀ {k} ⦃ _ : Eq k ⦄

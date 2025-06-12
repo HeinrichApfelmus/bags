@@ -3,5 +3,6 @@ prelude:
   hiding:
     - "null"
     - "filter"
+    - "lookup"
     - "map"
     - "concatMap"

@@ -1,6 +1,40 @@
 
 -- | Proofs on 'Bag'.
-module Data.Bag.Prop where
+module Data.Bag.Prop
+  {-|
+  -- * Query
+  -- ** null
+  ; prop-morphism-mnull
+  -- ** size
+  ; prop-size-mempty
+  ; prop-size-singleton
+  ; prop-size-<>
+  ; prop-morphism-msize
+  -- ** member
+  ; prop-morphism-mmember
+
+  -- * Construction
+  -- ** fromList
+  ; prop-fromList-empty
+  ; prop-fromList-++
+  ; prop-size-fromList
+  ; prop-fromList-filter
+
+  -- * Combine
+  -- ** cartesianProduct
+  ; prop-morphism-cartesianProduct-1
+  ; prop-morphism-cartesianProduct-2
+  ; prop-null-cartesianProduct
+  ; prop-filter-cartesianProduct
+
+  -- ** equijoin
+  ; prop-morphism-equijoin-1
+  ; prop-morphism-equijoin-2
+
+  -- * Traversal
+  -- ** filter
+  ; prop-morphism-filter
+  -} where
 
 open import Haskell.Prelude hiding (lookup; null; map; filter)
 
@@ -39,24 +73,21 @@ record IsCommutativeMonad (m : Type → Type) ⦃ _ : Monad m ⦄ : Type₁ wher
     Properties
     size
 ------------------------------------------------------------------------------}
-{- [Rewrite size]
-
-The properties of 'size' follow automatically from the rewrite rules
-for 'foldBag'.
--}
-
--- | A 'singleton' has @'size' = 1@.
-prop-size-singleton : ∀ (x : a) → size (singleton x) ≡ 1
+-- | The 'singleton' 'Bag' has @'size' = 1@.
+prop-size-singleton
+  : ∀ (x : a) → size (singleton x) ≡ 1
 --
 prop-size-singleton x = refl
 
 -- | The empty 'Bag' has @'size' = 0@.
-prop-size-mempty : ∀ {a} → size {a} mempty ≡ 0
+prop-size-mempty
+  : ∀ {a} → size {a} mempty ≡ 0
 --
 prop-size-mempty = refl
 
 -- | The union of 'Bags' adds their sizes.
-prop-size-<> : ∀ (xs ys : Bag a) → size (xs <> ys) ≡ size xs + size ys
+prop-size-<>
+  : ∀ (xs ys : Bag a) → size (xs <> ys) ≡ size xs + size ys
 --
 prop-size-<> xs ys = refl
 
@@ -146,9 +177,9 @@ instance
     fromList
 ------------------------------------------------------------------------------}
 -- | 'fromList' maps single element lists to singleton
-prop-fromList-[] : ∀ {a} → fromList {a} [] ≡ mempty
+prop-fromList-empty : ∀ {a} → fromList {a} [] ≡ mempty
 --
-prop-fromList-[] = refl
+prop-fromList-empty = refl
 
 -- | 'fromList' maps list concatenation to 'union' of 'Bag's.
 prop-fromList-++
@@ -200,7 +231,7 @@ prop-morphism-fromList
   : Monoid.IsHomomorphism (fromList {a})
 --
 prop-morphism-fromList =
-  Monoid.MkIsHomomorphism prop-fromList-[] prop-fromList-++
+  Monoid.MkIsHomomorphism prop-fromList-empty prop-fromList-++
 
 -- | 'filter' is a monoid homomorphism.
 prop-morphism-filter

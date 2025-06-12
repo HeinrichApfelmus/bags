@@ -1,7 +1,23 @@
 {-# OPTIONS --irrelevant-projections #-}
 
 -- | Indexed Tables and operations on them.
-module Data.Table.Def where
+module Data.Table.Def
+  {-|
+  -- * Type
+  ; Table
+
+  -- * Operations
+  -- ** Query
+  ; lookup
+  ; elements
+
+  -- ** Construction
+  ; singleton
+  ; indexBy
+
+  -- ** Combine
+  ; merge
+  -} where
 
 open import Haskell.Prelude hiding (lookup; null)
 
@@ -31,8 +47,6 @@ private
 isJust : Maybe a → Bool
 isJust Nothing = False
 isJust (Just _) = True
-
-{-# COMPILE AGDA2HS isJust #-}
 
 {-----------------------------------------------------------------------------
     Raw operations
@@ -138,6 +152,7 @@ prop-Table-equality
   : ∀ {k} ⦃ _ : Ord k ⦄ {xs ys : Table k a}
   → getTable xs ≡ getTable ys
   → xs ≡ ys
+--
 prop-Table-equality refl = refl
 
 {-----------------------------------------------------------------------------
@@ -249,7 +264,7 @@ elements = foldMap id ∘ getTable
 
 {-# COMPILE AGDA2HS elements #-}
 
--- | For each key, return the 'cartesianProduct' of 'Bag's.
+-- | For each key, return the 'Data.Bag.cartesianProduct' of 'Bag's.
 merge : ∀ {k} ⦃ _ : Ord k ⦄ → Table k a → Table k b → Table k (a × b)
 merge xs ys = record
   { getTable = mergeRaw (getTable xs) (getTable ys)

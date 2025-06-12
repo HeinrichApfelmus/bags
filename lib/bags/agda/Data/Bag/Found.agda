@@ -388,7 +388,7 @@ prop-findOne-member {a} x xs =
     Operations and Properties
     deleteOne
 ------------------------------------------------------------------------------}
--- | Delete an element from a 'Bag'.
+-- | Delete a given item from the given 'Bag' once.
 deleteOne
   : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄
   → a → Bag a → Bag a

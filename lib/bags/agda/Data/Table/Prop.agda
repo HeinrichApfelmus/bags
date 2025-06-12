@@ -1,10 +1,30 @@
 
 -- | Proofs about indexed 'Table's.
-module Data.Table.Prop where
+module Data.Table.Prop
+  {-|
+  -- * Properties
+  -- ** Query
+  ; prop-lookup→equality
+  ; prop-lookup-singleton
+  ; prop-morphism-lookup
+  ; prop-elements-singleton
+  ; prop-morphism-elements
+  -- ** Construction
+  ; prop-morphism-indexBy
+  ; prop-elements-indexBy
+  ; prop-lookup-indexBy
+  ; prop-equijoin-indexBy
+  -- ** Combine
+  ; prop-merge-singleton
+  ; prop-morphism-merge-1
+  ; prop-morphism-merge-2
+  -}
+  where
 
 open import Haskell.Prelude hiding (filter; lookup; null)
 
-open import Data.Table.Def
+open import Data.Table.Def hiding (prop-lookup→equality)
+import      Data.Table.Def
 
 open import Data.Bag using (Bag)
 import Data.Bag as Bag
@@ -21,11 +41,45 @@ import Haskell.Law.Monoid as Monoid
 import Data.Monoid.Morphism as Monoid
 import Data.Monoid.Refinement as Monoid
 
+{-# FOREIGN AGDA2HS
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+#-}
+
+dummy : ⊤
+dummy = tt
+{-# COMPILE AGDA2HS dummy #-}
+
 {-----------------------------------------------------------------------------
     Properties
-    Singletons
+    lookup
 ------------------------------------------------------------------------------}
+-- | Tables that have the same 'lookup' function are equal.
+@0 prop-lookup→equality
+  : ∀ {k} ⦃ _ : Ord k ⦄ (xs ys : Table k a)
+  → (∀ key → lookup key xs ≡ lookup key ys)
+  → xs ≡ ys
 --
+prop-lookup→equality = Data.Table.Def.prop-lookup→equality
+
+-- | Looking up a key in a 'singleton' 'Table' returns the item
+-- if and only if the keys match.
+prop-lookup-singleton
+  : ∀ {k a} ⦃ _ : Ord k ⦄ ⦃ _ : IsLawfulEq k ⦄
+      (key keyx : k) (x : a)
+  → lookup key (singleton keyx x)
+    ≡ (if key == keyx then Bag.singleton x else mempty)
+--
+prop-lookup-singleton key keyx x
+  rewrite Map.prop-lookup-singleton key keyx (Bag.singleton x)
+  with key == keyx
+... | False = refl
+... | True  = refl
+
+{-----------------------------------------------------------------------------
+    Properties
+    singleton
+------------------------------------------------------------------------------}
+-- | The 'elements' of a 'singleton' 'Table' are a 'Bag' with a single item.
 prop-elements-singleton
   : ∀ {k a} ⦃ _ : Ord k ⦄ (key : k) (x : a)
   → elements (singleton key x) ≡ Bag.singleton x
@@ -34,7 +88,8 @@ prop-elements-singleton key x
   rewrite Map.prop-toAscList-singleton key (Bag.singleton x)
   = Monoid.rightIdentity _
 
---
+-- | Merging two 'singleton' 'Table's yields another 'singleton'
+-- 'Table' if and only if the two items have the same key.
 @0 prop-merge-singleton
   : ∀ {k} ⦃ _ : Ord k ⦄ ⦃ _ : IsLawfulEq k ⦄
     (keyx : k) (x : a) (keyy : k) (y : b)
@@ -174,11 +229,13 @@ prop-lookup-indexBy key xs f =
 -- implementation of 'equijoin'.
 --
 -- Proof: We use a proof idea that differs from the one in the paper.
--- Specifically, we use uniqueness of morphism again!
+-- Specifically, we use uniqueness of 'Data.Bag.foldBag'.
 -- The property holds because:
+--
 --   * When considered as maps from @xs@ or @ys@, the left-hand side
 --     and the right-hand side are monoid homomorphisms, and
---   * it holds on 'Bag.singleton'.
+--
+--   * it holds on 'Data.Bag.singleton'.
 @0 prop-equijoin-indexBy
   : ∀ {k} ⦃ _ : Ord k ⦄ ⦃ _ : IsLawfulEq k ⦄
       (f : a → k) (g : b → k) (xs : Bag a) (ys : Bag b)
