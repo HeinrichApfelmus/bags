@@ -7,14 +7,21 @@ module Data.Bag
     -- * Operations
     -- ** Query
     null,
+    mnull,
     size,
+    msize,
     count,
     member,
+    mmember,
     -- ** Construction
     fromMaybe,
     fromList,
     -- ** Deletion
     deleteOne,
+    -- $prop-deleteOne-member-True
+    
+    -- $prop-deleteOne-member-False
+    
     -- ** Combine
     union,
     cartesianProduct,
@@ -23,19 +30,6 @@ module Data.Bag
     map,
     concatMap,
     filter,
-    -- * Properties
-    -- ** Query
-    -- $prop-size-mempty
-    
-    -- $prop-size-singleton
-    
-    -- $prop-size-<>
-    
-    -- ** Deletion
-    -- $prop-deleteOne-member-True
-    
-    -- $prop-deleteOne-member-False
-    
     )
     where
 
@@ -69,31 +63,4 @@ import Data.Bag.Found (deleteOne)
     >   : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
     >   → member x xs ≡ True
     >   → xs ≡ singleton x <> deleteOne x xs
--}
-{- $prop-size-<>
-#p:prop-size-<>#
-
-[prop-size-<>]:
-    The union of 'Bags' adds their sizes.
-    
-    > prop-size-<>
-    >   : ∀ (xs ys : Bag a) → size (xs <> ys) ≡ size xs + size ys
--}
-{- $prop-size-mempty
-#p:prop-size-mempty#
-
-[prop-size-mempty]:
-    The empty 'Bag' has @'size' = 0@.
-    
-    > prop-size-mempty
-    >   : ∀ {a} → size {a} mempty ≡ 0
--}
-{- $prop-size-singleton
-#p:prop-size-singleton#
-
-[prop-size-singleton]:
-    The 'singleton' 'Bag' has @'size' = 1@.
-    
-    > prop-size-singleton
-    >   : ∀ (x : a) → size (singleton x) ≡ 1
 -}

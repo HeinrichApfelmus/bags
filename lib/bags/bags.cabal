@@ -68,6 +68,7 @@ library
 
   exposed-modules:
     Data.Bag
+    Data.Bag.Prop
     Data.Monoid.Extra
     Data.Monoid.Refinement
     Data.Table
@@ -76,9 +77,4 @@ library
     Data.Bag.Found
     Data.Bag.Quotient
     Data.Bag.Raw
-    Data.Table.Def
-  autogen-modules:
-    Data.Bag.Def
-    Data.Bag.Raw
-    Data.Monoid.Refinement
     Data.Table.Def

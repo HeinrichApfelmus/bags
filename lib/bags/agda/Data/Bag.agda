@@ -8,9 +8,12 @@ module Data.Bag
   -- * Operations
   -- ** Query
   ; null
+  ; mnull
   ; size
+  ; msize
   ; count
   ; member
+  ; mmember
 
   -- ** Construction
   ; fromMaybe
@@ -18,6 +21,8 @@ module Data.Bag
 
   -- ** Deletion
   ; deleteOne
+    ; prop-deleteOne-member-True
+    ; prop-deleteOne-member-False
 
   -- ** Combine
   ; union
@@ -28,17 +33,6 @@ module Data.Bag
   ; map
   ; concatMap
   ; filter
-
-  -- * Properties
-  -- ** Query
-    ; prop-size-mempty
-    ; prop-size-singleton
-    ; prop-size-<>
-
-  -- ** Deletion
-    ; prop-deleteOne-member-True
-    ; prop-deleteOne-member-False
-
   -} where
 
 {-# FOREIGN AGDA2HS
@@ -59,24 +53,6 @@ open import Haskell.Law.Eq
     Copy & Paste of relevant properties
     for documentation purposes.
 ------------------------------------------------------------------------------}
--- | The 'singleton' 'Bag' has @'size' = 1@.
-prop-size-singleton
-  : ∀ (x : a) → size (singleton x) ≡ 1
---
-prop-size-singleton x = refl
-
--- | The empty 'Bag' has @'size' = 0@.
-prop-size-mempty
-  : ∀ {a} → size {a} mempty ≡ 0
---
-prop-size-mempty = refl
-
--- | The union of 'Bags' adds their sizes.
-prop-size-<>
-  : ∀ (xs ys : Bag a) → size (xs <> ys) ≡ size xs + size ys
---
-prop-size-<> xs ys = refl
-
 -- | If the given item is a 'member' of the 'Bag',
 -- 'deleteOne' will remove it once.
 @0 prop-deleteOne-member-True
