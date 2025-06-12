@@ -48,7 +48,7 @@ module Data.Bag.Prop
     )
     where
 
-import Prelude hiding (null, filter, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap)
 
 dummy :: ()
 dummy = ()

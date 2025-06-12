@@ -1,16 +1,30 @@
-module Data.Table.Def where
+module Data.Table.Def 
+    (
+    -- * Type
+    Table,
+    -- * Operations
+    -- ** Query
+    lookup,
+    elements,
+    -- ** Construction
+    singleton,
+    indexBy,
+    -- ** Combine
+    merge,
+    -- * Properties
+    -- ** Query
+    -- $prop-lookup→equality
+    
+    )
+    where
 
-import Prelude hiding (null, filter, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap)
 import qualified Data.Bag.Def as Bag (cartesianProduct)
 import Data.Bag.Quotient (Bag, foldBag)
 import qualified Data.Bag.Quotient as Bag (singleton)
 import Data.Map (Map)
 import qualified Data.Map as Map (empty, intersectionWith, lookup, singleton, unionWith)
 import qualified Data.Monoid.Refinement (Commutative)
-
-isJust :: Maybe a -> Bool
-isJust Nothing = False
-isJust (Just _) = True
 
 mergeRaw ::
            Ord k => Map k (Bag a) -> Map k (Bag b) -> Map k (Bag (a, b))
@@ -63,7 +77,7 @@ elements :: Ord k => Table k a -> Bag a
 elements = foldMap id . \ r -> getTable r
 
 {-|
-For each key, return the 'cartesianProduct' of 'Bag's.
+For each key, return the 'Data.Bag.cartesianProduct' of 'Bag's.
 -}
 merge :: Ord k => Table k a -> Table k b -> Table k (a, b)
 merge xs ys = MkTable (mergeRaw (getTable xs) (getTable ys))

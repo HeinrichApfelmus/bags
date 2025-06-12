@@ -1,6 +1,6 @@
 module Data.Monoid.Refinement where
 
-import Prelude hiding (null, filter, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap)
 import Data.Monoid.Extra (Conj, Disj, Sum')
 
 class Monoid a => Commutative a where

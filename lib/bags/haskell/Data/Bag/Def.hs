@@ -2,7 +2,7 @@
 
 module Data.Bag.Def where
 
-import Prelude hiding (null, filter, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap)
 import Data.Bag.Quotient (Bag, foldBag, singleton)
 import Data.Monoid.Extra (Conj(MkConj, getConj), Disj(MkDisj, getDisj), Sum'(MkSum, getSum'))
 import Data.Monoid.Refinement ()

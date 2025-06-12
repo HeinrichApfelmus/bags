@@ -21,7 +21,7 @@ module Data.BagOld
     )
     where
 
-import Prelude hiding (null, filter, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap)
 
 {-|
 A unordered, finite collection of items.
