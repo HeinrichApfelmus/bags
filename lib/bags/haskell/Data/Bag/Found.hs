@@ -60,7 +60,7 @@ findOne :: Eq a => a -> a -> Found a
 findOne x y = if x == y then here y else elsewhere y
 
 {-|
-Delete an element from a 'Bag'.
+Delete a given item from the given 'Bag' once.
 -}
 deleteOne :: Eq a => a -> Bag a -> Bag a
 deleteOne x = (\ r -> rest r) . foldBag (findOne x)

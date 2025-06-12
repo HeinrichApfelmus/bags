@@ -37,31 +37,6 @@ record IsCommutativeMonad (m : Type → Type) ⦃ _ : Monad m ⦄ : Type₁ wher
 
 {-----------------------------------------------------------------------------
     Properties
-    size
-------------------------------------------------------------------------------}
-{- [Rewrite size]
-
-The properties of 'size' follow automatically from the rewrite rules
-for 'foldBag'.
--}
-
--- | A 'singleton' has @'size' = 1@.
-prop-size-singleton : ∀ (x : a) → size (singleton x) ≡ 1
---
-prop-size-singleton x = refl
-
--- | The empty 'Bag' has @'size' = 0@.
-prop-size-mempty : ∀ {a} → size {a} mempty ≡ 0
---
-prop-size-mempty = refl
-
--- | The union of 'Bags' adds their sizes.
-prop-size-<> : ∀ (xs ys : Bag a) → size (xs <> ys) ≡ size xs + size ys
---
-prop-size-<> xs ys = refl
-
-{-----------------------------------------------------------------------------
-    Properties
     functorial type classes
 ------------------------------------------------------------------------------}
 --

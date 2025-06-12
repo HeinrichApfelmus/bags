@@ -19,52 +19,52 @@ mnull :: Bag a -> Conj
 mnull = foldBag (\ _ -> MkConj False)
 
 {-|
-Test whether the 'Bag' is empty.
+Is the given 'Bag' empty?
 -}
 null :: Bag a -> Bool
 null = (\ r -> getConj r) . mnull
 
 {-|
-Union of all items from the two arguments.
+Union of all items from the two argument 'Bag's.
 Synonym for '(<>)'.
 -}
 union :: Bag a -> Bag a -> Bag a
 union = (<>)
 
 {-|
-A 'Bag' that may contain an element.
+Construct a 'Bag' that may be empty or contains a single item.
 -}
 fromMaybe :: Maybe a -> Bag a
 fromMaybe Nothing = mempty
 fromMaybe (Just x) = singleton x
 
 {-|
-Number of items in the Bag, Monoid version
+The number of items in the Bag, Monoid version
 -}
 msize :: Bag a -> Sum' Int
 msize = foldBag (\ _ -> MkSum 1)
 
 {-|
-Number of items in the Bag.
+The number of items in the Bag.
 -}
 size :: Bag a -> Int
 size = (\ r -> getSum' r) . msize
 
 {-|
-Apply a function to all elements in the 'Bag'
-and take the union of the results.
+Apply a function to all items in the 'Bag'
+and take the 'union' of the results.
 -}
 concatMap :: (a -> Bag b) -> Bag a -> Bag b
 concatMap = foldBag
 
 {-|
-Apply a function to all elements in the 'Bag'.
+Apply a function to all items in the 'Bag'.
 -}
 map :: (a -> b) -> Bag a -> Bag b
 map f = concatMap (singleton . f)
 
 {-|
-Obtain a 'Bag' with the same items as a given list.
+Construct a 'Bag' with the same items as the given list.
 -}
 fromList :: [a] -> Bag a
 fromList = foldMap singleton
@@ -89,7 +89,7 @@ instance Applicative Bag where
 instance MonadPlus Bag
 
 {-|
-Keep only those elements that satisfy a predicate.
+Keep those elements that satisfy a predicate.
 -}
 filter :: (a -> Bool) -> Bag a -> Bag a
 filter p xs
@@ -111,13 +111,13 @@ mmember :: Eq a => a -> Bag a -> Disj
 mmember x = foldBag (\ y -> if x == y then MkDisj True else mempty)
 
 {-|
-Test whether an item is contained in the 'Bag' at least once.
+Is the given item contain in the 'Bag' at least once?
 -}
 member :: Eq a => a -> Bag a -> Bool
 member x = (\ r -> getDisj r) . mmember x
 
 {-|
-'Bag' containing all possible pairs of items.
+Construct the 'Bag' containing all possible pairs of items.
 -}
 cartesianProduct :: Bag a -> Bag b -> Bag (a, b)
 cartesianProduct xs ys
@@ -126,7 +126,7 @@ cartesianProduct xs ys
        pure (x, y)
 
 {-|
-'Bag' containing all possible pairs of items where
+Construct the 'Bag' containing all possible pairs of items where
 the functions yield the same result.
 -}
 equijoin ::
