@@ -1,0 +1,67 @@
+cabal-version:   3.6
+name:            agda2hs-fixer
+version:         0.1.0.0
+synopsis:        Fix Haskell files
+description:
+  This utilitiy fixes the `.hs` output produced by `agda2hs`.
+
+  * Adds Haddock comments on functions
+  * Adds properties as Haddock comments
+
+homepage:        https://github.com/HeirnichApfelmus/bags
+license:         Apache-2.0
+license-file:    LICENSE
+author:          Heinrich Apfelmus, Cardano Foundation (High Assurance Lab)
+maintainer:      Heinrich Apfelmus <apfelmus at quantentunnel dot de>
+copyright:       (c) 2024-2025 Cardano Foundation
+category:        Cardano
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+
+common language
+  default-language:   Haskell2010
+  default-extensions:
+    NoImplicitPrelude
+    OverloadedStrings
+
+common opts-lib
+  ghc-options:
+    -Wall -Wcompat -Wredundant-constraints -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+
+  if flag(release)
+    ghc-options: -O2 -Werror
+
+common opts-exe
+  import: opts-lib
+  ghc-options: -threaded -rtsopts
+
+flag release
+  description: Enable optimization and `-Werror`
+  default:     False
+  manual:      True
+
+executable agda2hs-fixer
+  import:           language, opts-exe
+  hs-source-dirs:   haskell
+  build-depends:
+    , base >= 4.14 && < 5
+    , bytestring >= 0.10 && < 0.13
+    , containers >= 0.5 && < 0.8
+    , directory >= 1.3.8.5 && < 1.4
+    , filepath >= 1.4.300.1 && < 1.6
+    , haskell-src-exts ^>= 1.23.1
+    , megaparsec >= 9.6.1 && < 10
+    , text >= 1.2 && < 2.2
+    , transformers >= 0.6.1.0 && < 0.7
+    , with-utf8 >= 1.1.0.0 && < 1.2
+  main-is:          agda2hs-fixer.hs
+  other-modules:
+    Language.Agda2hs.Agda.Parser
+    Language.Agda2hs.Agda.Parser.ExportList
+    Language.Agda2hs.Agda.Parser.Lexer
+    Language.Agda2hs.Agda.Parser.Types
+    Language.Agda2hs.Agda.Types
+    Language.Agda2hs.Documentation
+    Language.Agda2hs.Haskell.Parser
+    Language.Agda2hs.Haskell.Types
