@@ -17,11 +17,6 @@ module Data.Table.Def
 
   -- ** Combine
   ; merge
-
-  -- * Properties
-  -- ** Query
-  ; prop-lookup→equality
-
   -} where
 
 open import Haskell.Prelude hiding (lookup; null)

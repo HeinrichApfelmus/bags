@@ -78,3 +78,4 @@ library
     Data.Bag.Quotient
     Data.Bag.Raw
     Data.Table.Def
+    Data.Table.Prop

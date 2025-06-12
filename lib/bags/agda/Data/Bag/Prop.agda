@@ -59,12 +59,6 @@ import      Data.Monoid.Refinement as Monoid
 
 open import Control.Monad.Prop as Monad
 
-
-{-# FOREIGN AGDA2HS
-  dummy :: ()
-  dummy = ()
-#-}
-
 ------------------------------------------------------------------------------
 -- Move out: Additional type of monad
 

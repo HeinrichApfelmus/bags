@@ -11,10 +11,6 @@ module Data.Table.Def
     indexBy,
     -- ** Combine
     merge,
-    -- * Properties
-    -- ** Query
-    -- $prop-lookup→equality
-    
     )
     where
 
