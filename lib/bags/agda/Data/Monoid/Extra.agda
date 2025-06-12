@@ -7,7 +7,9 @@ open import Haskell.Law.Monoid
 open import Haskell.Law.Num
 
 -------------------------------------------------------------------------------
--- Boolean monoid under conjunction '(&&)'.
+--
+
+-- | Boolean monoid under conjunction '(&&)'.
 record Conj : Type where
   constructor MkConj
   field
@@ -45,7 +47,9 @@ instance
 {-# COMPILE AGDA2HS iMonoidConj #-}
 
 -------------------------------------------------------------------------------
--- Boolean monoid under disjunction '(||)'.
+--
+
+-- | Boolean monoid under disjunction '(||)'.
 record Disj : Type where
   constructor MkDisj
   field
@@ -83,7 +87,9 @@ instance
 {-# COMPILE AGDA2HS iMonoidDisj #-}
 
 -------------------------------------------------------------------------------
--- Monoid under addition.
+--
+
+-- | Monoid under addition.
 record Sum' a : Type where
   constructor MkSum
   field
