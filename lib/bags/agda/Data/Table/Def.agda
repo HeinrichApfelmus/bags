@@ -138,6 +138,7 @@ prop-Table-equality
   : ∀ {k} ⦃ _ : Ord k ⦄ {xs ys : Table k a}
   → getTable xs ≡ getTable ys
   → xs ≡ ys
+--
 prop-Table-equality refl = refl
 
 {-----------------------------------------------------------------------------
