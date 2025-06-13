@@ -4,39 +4,53 @@ module Data.Bag.Prop
   {-|
   -- * Query
   -- ** null
+  ; prop-null-singleton
   ; prop-morphism-mnull
   -- ** size
   ; prop-size-mempty
   ; prop-size-singleton
   ; prop-size-<>
   ; prop-morphism-msize
+  -- ** count
+  ; prop-def-count
   -- ** member
+  ; prop-member-singleton
   ; prop-morphism-mmember
 
   -- * Construction
   -- ** fromList
+  ; prop-fromList-singleton
   ; prop-fromList-empty
   ; prop-fromList-++
+  ; prop-morphism-fromList
   ; prop-size-fromList
   ; prop-fromList-filter
 
   -- * Combine
   -- ** cartesianProduct
+  ; prop-def-cartesianProduct
   ; prop-morphism-cartesianProduct-1
   ; prop-morphism-cartesianProduct-2
   ; prop-null-cartesianProduct
   ; prop-filter-cartesianProduct
 
   -- ** equijoin
+  ; prop-def-equijoin
   ; prop-morphism-equijoin-1
   ; prop-morphism-equijoin-2
 
   -- * Traversal
+  -- ** map
+  ; prop-map-singleton
+  ; prop-morphism-map
+  -- ** concatMap
+  ; prop-def-concatMap
   -- ** filter
+  ; prop-def-filter
   ; prop-morphism-filter
   -} where
 
-open import Haskell.Prelude hiding (lookup; null; map; filter)
+open import Haskell.Prelude hiding (lookup; null; map; filter; concatMap)
 
 open import Data.Bag.Quotient.Prop
 open import Data.Bag.Def
@@ -78,25 +92,61 @@ record IsCommutativeMonad (m : Type → Type) ⦃ _ : Monad m ⦄ : Type₁ wher
 
 {-----------------------------------------------------------------------------
     Properties
+    null
+------------------------------------------------------------------------------}
+-- | The 'Data.Bag.singleton' 'Data.Bag.Bag' is not empty.
+prop-null-singleton
+  : ∀ (x : a) → null (singleton x) ≡ False
+--
+prop-null-singleton x = refl
+
+{-----------------------------------------------------------------------------
+    Properties
     size
 ------------------------------------------------------------------------------}
--- | The 'singleton' 'Bag' has @'size' = 1@.
+-- | The 'Data.Bag.singleton' 'Data.Bag.Bag' has @'size' = 1@.
 prop-size-singleton
   : ∀ (x : a) → size (singleton x) ≡ 1
 --
 prop-size-singleton x = refl
 
--- | The empty 'Bag' has @'size' = 0@.
+-- | The empty 'Data.Bag.Bag' has @'size' = 0@.
 prop-size-mempty
   : ∀ {a} → size {a} mempty ≡ 0
 --
 prop-size-mempty = refl
 
--- | The union of 'Bags' adds their sizes.
+-- | The union of 'Data.Bag.Bag's adds their sizes.
 prop-size-<>
   : ∀ (xs ys : Bag a) → size (xs <> ys) ≡ size xs + size ys
 --
 prop-size-<> xs ys = refl
+
+{-----------------------------------------------------------------------------
+    Properties
+    count
+------------------------------------------------------------------------------}
+-- | Definition of 'Data.Bag.count'.
+prop-def-count
+  : ∀ ⦃ _ : Eq a ⦄ (x : a) (xs : Bag a)
+  → count x xs ≡ size (filter (x ==_) xs)
+--
+prop-def-count x xs = refl
+
+{-----------------------------------------------------------------------------
+    Properties
+    member
+------------------------------------------------------------------------------}
+-- | An item is a member of a 'Data.Bag.singleton'
+-- 'Data.Bag.Bag' if and only if it is equal to the item in the bag.
+prop-member-singleton
+  : ∀ ⦃ _ : Eq a ⦄ (x y : a)
+  → member x (singleton y) ≡ (x == y)
+--
+prop-member-singleton x y
+  with x == y
+... | False = refl
+... | True  = refl
 
 {-----------------------------------------------------------------------------
     Properties
@@ -183,12 +233,20 @@ instance
     Properties
     fromList
 ------------------------------------------------------------------------------}
--- | 'fromList' maps single element lists to singleton
-prop-fromList-empty : ∀ {a} → fromList {a} [] ≡ mempty
+-- | 'Data.Bag.fromList' maps single element lists to 'Data.Bag.singleton'.
+prop-fromList-singleton
+  : ∀ (x : a) → fromList (x ∷ []) ≡ singleton x
+--
+prop-fromList-singleton x = Monoid.rightIdentity (singleton x)
+
+-- | 'Data.Bag.fromList' maps single element lists to singleton
+prop-fromList-empty
+  : ∀ {a} → fromList {a} [] ≡ mempty
 --
 prop-fromList-empty = refl
 
--- | 'fromList' maps list concatenation to 'union' of 'Bag's.
+-- | 'Data.Bag.fromList' maps list concatenation
+-- to 'Data.Bag.union' of 'Bag's.
 prop-fromList-++
   : ∀ (xs ys : List a) 
   → fromList (xs ++ ys) ≡ fromList xs <> fromList ys
@@ -200,7 +258,7 @@ prop-fromList-++ (x ∷ xs) ys
   rewrite Monoid.associativity (singleton x) (fromList xs) (fromList ys)
   = refl
 
--- | 'fromList' preserves list length.
+-- | 'Data.Bag.fromList' preserves list length.
 prop-size-fromList
   : ∀ (xs : List a)
   → size (fromList xs) ≡ length xs
@@ -208,7 +266,7 @@ prop-size-fromList
 prop-size-fromList [] = refl
 prop-size-fromList (x ∷ xs) rewrite prop-size-fromList xs = refl
 
--- | 'fromList' maps 'Data.List.filter' to 'filter'.
+-- | 'Data.Bag.fromList' maps 'Data.List.filter' to 'Data.Bag.filter'.
 prop-fromList-filter
   : ∀ (p : a → Bool) (xs : List a) 
   → fromList (List.filter p xs) ≡ filter p (fromList xs)
@@ -227,46 +285,54 @@ prop-fromList-filter p (x ∷ xs)
     Properties
     Homomorphisms
 ------------------------------------------------------------------------------}
--- | 'size' is a monoid homomorphism.
+-- | 'Data.Bag.msize' is a monoid homomorphism.
 prop-morphism-msize
   : Monoid.IsHomomorphism ⦃ iMonoidBag {a} ⦄ msize
 --
 prop-morphism-msize = prop-morphism-foldBag _
 
--- | 'fromList' is a monoid homomorphism.
+-- | 'Data.Bag.fromList' is a monoid homomorphism.
 prop-morphism-fromList
   : Monoid.IsHomomorphism (fromList {a})
 --
 prop-morphism-fromList =
   Monoid.MkIsHomomorphism prop-fromList-empty prop-fromList-++
 
--- | 'filter' is a monoid homomorphism.
+-- | 'Data.Bag.map' is a monoid homomorphism.
+prop-morphism-map
+  : ∀ (f : a → b) → Monoid.IsHomomorphism (map f)
+--
+prop-morphism-map f = prop-morphism-foldBag _
+
+-- | 'Data.Bag.filter' is a monoid homomorphism.
 prop-morphism-filter
   : ∀ (p : a → Bool) → Monoid.IsHomomorphism (filter p)
 --
 prop-morphism-filter p = prop-morphism-foldBag _
 
--- | 'null' is a monoid homomorphism.
+-- | 'Data.Bag.mnull' is a monoid homomorphism.
 prop-morphism-mnull
   : Monoid.IsHomomorphism ⦃ iMonoidBag {a} ⦄ mnull
 --
 prop-morphism-mnull = prop-morphism-foldBag _
 
--- | 'member' is a monoid homomorphism.
+-- | 'Data.Bag.member' is a monoid homomorphism.
 prop-morphism-mmember
   : ∀ ⦃ _ : Eq a ⦄ (x : a)
   → Monoid.IsHomomorphism ⦃ iMonoidBag {a} ⦄ (mmember x)
 --
 prop-morphism-mmember _ = prop-morphism-foldBag _
 
--- | 'cartesianProduct' is a monoid homomorphism in its first argument.
+-- | 'Data.Bag.cartesianProduct' is a monoid homomorphism
+-- in its first argument.
 prop-morphism-cartesianProduct-1
   : ∀ (ys : Bag b)
   → Monoid.IsHomomorphism (λ xs → cartesianProduct {a} {b} xs ys)
 --
 prop-morphism-cartesianProduct-1 ys = prop-morphism-foldBag _
 
--- | 'cartesianProduct' is a monoid homomorphism in its second argument.
+-- | 'Data.Bag.cartesianProduct' is a monoid homomorphism
+-- in its second argument.
 prop-morphism-cartesianProduct-2
   : ∀ (xs : Bag a)
   → Monoid.IsHomomorphism (λ (ys : Bag b) → cartesianProduct {a} {b} xs ys)
@@ -276,14 +342,14 @@ prop-morphism-cartesianProduct-2 xs .Monoid.homo-mempty =
 prop-morphism-cartesianProduct-2 xs .Monoid.homo-<> ys1 ys2 =
   prop-foldBag-function-<> _ _ xs
 
--- | 'equijoin' is a monoid homomorphism in its first argument.
+-- | 'Data.Bag.equijoin' is a monoid homomorphism in its first argument.
 prop-morphism-equijoin-1
   : ∀ {k} ⦃ _ : Eq k ⦄ (f : a → k) (g : b → k) (ys : Bag b)
   → Monoid.IsHomomorphism (λ xs → equijoin f g xs ys)
 --
 prop-morphism-equijoin-1 f g ys = prop-morphism-foldBag _
 
--- | 'equijoin' is a monoid homomorphism in its second argument.
+-- | 'Data.Bag.equijoin' is a monoid homomorphism in its second argument.
 prop-morphism-equijoin-2
   : ∀ {k} ⦃ _ : Eq k ⦄ (f : a → k) (g : b → k) (xs : Bag a)
   → Monoid.IsHomomorphism (λ ys → equijoin f g xs ys)
@@ -297,6 +363,14 @@ prop-morphism-equijoin-2 f g xs .Monoid.homo-<> x y =
     Properties
     cartesianProduct
 ------------------------------------------------------------------------------}
+-- | Definition of 'Data.Bag.cartesianProduct'.
+prop-def-cartesianProduct
+  : ∀ (xs : Bag a) (ys : Bag b)
+  → cartesianProduct xs ys
+    ≡ (do x ← xs; y ← ys; pure (x , y))
+--
+prop-def-cartesianProduct xs ys = refl
+
 _||-Conj_ : Conj → Conj → Conj
 _||-Conj_ (MkConj x) (MkConj y) = MkConj (x || y)
 
@@ -337,7 +411,8 @@ lemma-mnull-cartesianProduct =
     lhs = λ xs ys → mnull (cartesianProduct xs ys)
     rhs = λ xs ys → (mnull xs ||-Conj mnull ys)
 
--- | A 'cartesianProduct' is empty if and only if both arguments are empty.
+-- | A 'Data.Bag.cartesianProduct' is empty
+-- if and only if both arguments are empty.
 prop-null-cartesianProduct
   : ∀ (xs : Bag a) (ys : Bag b)
   → null (cartesianProduct xs ys) ≡ (null xs || null ys)
@@ -347,9 +422,53 @@ prop-null-cartesianProduct xs ys =
 
 {-----------------------------------------------------------------------------
     Properties
+    equijoin
+------------------------------------------------------------------------------}
+-- | Definition of 'Data.Bag.equijoin'.
+prop-def-equijoin
+  : ∀ {k} ⦃ _ : Eq k ⦄
+      (f : a → k) (g : b → k) (xs : Bag a) (ys : Bag b)
+  → equijoin f g xs ys
+    ≡ (do x ← xs; y ← ys; guard (f x == g y); pure (x , y))
+--
+prop-def-equijoin f g xs ys = refl
+
+{-----------------------------------------------------------------------------
+    Properties
+    map
+------------------------------------------------------------------------------}
+-- | Applying 'Data.Bag.map' to a 'Data.Bag.singleton'
+-- applies the function to the item.
+prop-map-singleton
+  : ∀ (f : a → b) (x : a)
+  → map f (singleton x) ≡ singleton (f x)
+--
+prop-map-singleton f x = refl
+
+{-----------------------------------------------------------------------------
+    Properties
+    concatMap
+------------------------------------------------------------------------------}
+-- | Definition of 'Data.Bag.concatMap'.
+prop-def-concatMap
+  : ∀ (f : a → Bag b) (xs : Bag a)
+  → concatMap f xs ≡ foldBag f xs
+--
+prop-def-concatMap f xs = refl
+
+{-----------------------------------------------------------------------------
+    Properties
     filter
 ------------------------------------------------------------------------------}
--- | Independent filters promote through cartesian product.
+-- | Definition of 'filter'.
+prop-def-filter
+  : ∀ (p : a → Bool) (xs : Bag a)
+  → filter p xs
+    ≡ (do x ← xs; guard (p x); pure x)
+--
+prop-def-filter p xs = refl
+
+-- | Independent filters promote through 'Data.Bag.cartesianProduct'.
 prop-filter-cartesianProduct
   : ∀ (p : a → Bool) (q : b → Bool) (xs : Bag a) (ys : Bag b)
   → filter (λ xy → p (fst xy) && q (snd xy)) (cartesianProduct xs ys)

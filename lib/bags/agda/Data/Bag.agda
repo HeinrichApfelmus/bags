@@ -1,6 +1,6 @@
 module Data.Bag
   {-|
-  -- * Type
+  -- * Type and Definitional Properties
   ; Bag
   ; singleton
   ; foldBag
