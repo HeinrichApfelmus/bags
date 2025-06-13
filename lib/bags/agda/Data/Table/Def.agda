@@ -165,13 +165,13 @@ toBag (Just x) = x
 
 {-# COMPILE AGDA2HS toBag #-}
 
--- | Look up an index in a 'Table'.
+-- | Look up a key in a 'Table'.
 lookup : ∀ {k} ⦃ _ : Ord k ⦄ → k → Table k a → Bag a
 lookup = λ key → toBag ∘ Map.lookup key ∘ getTable
 
 {-# COMPILE AGDA2HS lookup #-}
 
--- | Table with a single item.
+-- | Construct a 'Table' with a single item.
 singleton : ∀ {k} ⦃ _ : Ord k ⦄ → k → a → Table k a
 singleton key x =
   MkTable (Map.singleton key (Bag.singleton x)) prop-invariant-singleton
@@ -258,13 +258,13 @@ indexBy xs f = foldBag (λ x → singleton (f x) x) xs
 
 {-# COMPILE AGDA2HS indexBy #-}
 
--- | Forget the index.
+-- | Forget the grouping of items by key.
 elements : ∀ {k} ⦃ _ : Ord k ⦄ → Table k a → Bag a
 elements = foldMap id ∘ getTable
 
 {-# COMPILE AGDA2HS elements #-}
 
--- | For each key, return the 'Data.Bag.cartesianProduct' of 'Bag's.
+-- | For each key, construct the 'Data.Bag.cartesianProduct' of 'Bag's.
 merge : ∀ {k} ⦃ _ : Ord k ⦄ → Table k a → Table k b → Table k (a × b)
 merge xs ys = record
   { getTable = mergeRaw (getTable xs) (getTable ys)

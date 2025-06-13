@@ -72,10 +72,10 @@ library
     Data.Monoid.Extra
     Data.Monoid.Refinement
     Data.Table
+    Data.Table.Prop
   other-modules:
     Data.Bag.Def
     Data.Bag.Found
     Data.Bag.Quotient
     Data.Bag.Raw
     Data.Table.Def
-    Data.Table.Prop
