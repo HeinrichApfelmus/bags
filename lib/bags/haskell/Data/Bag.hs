@@ -1,9 +1,17 @@
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-dodgy-exports #-}
+
 module Data.Bag 
     (
-    -- * Type
+    -- * Type and Definitional Properties
     Bag,
     singleton,
     foldBag,
+    -- $prop-foldBag-singleton
+    
+    -- $prop-morphism-foldBag
+    
+    -- $prop-foldBag-unique
+    
     -- * Operations
     -- ** Query
     null,
@@ -30,37 +38,53 @@ module Data.Bag
     map,
     concatMap,
     filter,
+    -- * Properties
+    module Data.Bag.Prop.Core,
+    module Data.Bag.Prop.Deletion,
+    module Data.Bag.Prop.Operations,
     )
     where
 
 import Prelude hiding (null, filter, lookup, map, concatMap)
 
+
 import Data.Bag.Def
 import Data.Bag.Quotient
 import Data.Bag.Found (deleteOne)
+import Data.Bag.Prop.Core
+import Data.Bag.Prop.Deletion
+import Data.Bag.Prop.Operations
 
 -- * Properties
-{- $prop-deleteOne-member-False
-#p:prop-deleteOne-member-False#
+{- $prop-foldBag-singleton
+#p:prop-foldBag-singleton#
 
-[prop-deleteOne-member-False]:
-    If the given item is a 'member' of the 'Bag',
-    'deleteOne' will leave the 'Bag' unchanged.
+[prop-foldBag-singleton]:
+    Universal property: Every 'Monoid' homomorphism factors
+    through 'foldBag' and 'singleton'.
     
-    > prop-deleteOne-member-False
-    >   : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
-    >   → member x xs ≡ False
-    >   → xs ≡ deleteOne x xs
+    > prop-foldBag-singleton
+    >   : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b) (x : a)
+    >   → foldBag f (singleton x) ≡ f x
 -}
-{- $prop-deleteOne-member-True
-#p:prop-deleteOne-member-True#
+{- $prop-foldBag-unique
+#p:prop-foldBag-unique#
 
-[prop-deleteOne-member-True]:
-    If the given item is a 'member' of the 'Bag',
-    'deleteOne' will remove it once.
+[prop-foldBag-unique]:
+    Universal property: 'foldBag' is the unique homomorphism.
     
-    > @0 prop-deleteOne-member-True
-    >   : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
-    >   → member x xs ≡ True
-    >   → xs ≡ singleton x <> deleteOne x xs
+    > prop-foldBag-unique
+    >   : ∀ ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (g : Bag a → b)
+    >   → @0 Monoid.IsHomomorphism g
+    >   → ∀ (xs : Bag a) → foldBag (g ∘ singleton) xs ≡ g xs
+-}
+{- $prop-morphism-foldBag
+#p:prop-morphism-foldBag#
+
+[prop-morphism-foldBag]:
+    Universal property: 'foldBag' is a homomorphism of 'Monoid'.
+    
+    > prop-morphism-foldBag
+    >   : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b)
+    >   → Monoid.IsHomomorphism (foldBag f)
 -}

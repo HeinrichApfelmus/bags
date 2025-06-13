@@ -1,9 +1,12 @@
 module Data.Bag
   {-|
-  -- * Type
+  -- * Type and Definitional Properties
   ; Bag
   ; singleton
   ; foldBag
+    ; prop-foldBag-singleton
+    ; prop-morphism-foldBag
+    ; prop-foldBag-unique
 
   -- * Operations
   -- ** Query
@@ -33,42 +36,68 @@ module Data.Bag
   ; map
   ; concatMap
   ; filter
+
+  -- * Properties
+  ; module Data.Bag.Prop.Core
+  ; module Data.Bag.Prop.Deletion
+  ; module Data.Bag.Prop.Operations
   -} where
 
 {-# FOREIGN AGDA2HS
+  {-# OPTIONS_GHC -Wno-unused-imports -Wno-dodgy-exports #-}
   import Data.Bag.Def
   import Data.Bag.Quotient
   import Data.Bag.Found (deleteOne)
+  import Data.Bag.Prop.Core
+  import Data.Bag.Prop.Deletion
+  import Data.Bag.Prop.Operations
 #-}
 
-open import Data.Bag.Def            public
-open import Data.Bag.Quotient.Prop  public
-open import Data.Bag.Prop           public
-open import Data.Bag.Found          public using (deleteOne)
+import      Haskell.Data.Bag.Quotient
+open import Haskell.Data.Bag.Quotient   public hiding
+  ( prop-foldBag-singleton
+  ; prop-foldBag-unique
+  )
+open import Data.Bag.Def                public
+open import Data.Bag.Found              public using (deleteOne)
+import      Data.Bag.Prop.Core
+open import Data.Bag.Prop.Core          public hiding
+  ( prop-morphism-foldBag )
+open import Data.Bag.Prop.Operations    public
 
 open import Haskell.Prelude
 open import Haskell.Law.Eq
+open import Haskell.Law.Monoid
+
+import Data.Monoid.Refinement as Monoid
+import Data.Monoid.Morphism as Monoid
 
 {-----------------------------------------------------------------------------
-    Copy & Paste of relevant properties
-    for documentation purposes.
+    Properties
+    definitional
 ------------------------------------------------------------------------------}
--- | If the given item is a 'member' of the 'Bag',
--- 'deleteOne' will remove it once.
-@0 prop-deleteOne-member-True
-  : ∀ ⦃ _ : Eq a ⦄ ⦃ @0 _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
-  → member x xs ≡ True
-  → xs ≡ singleton x <> deleteOne x xs
+-- | Universal property: 'foldBag' is a homomorphism of 'Monoid'.
+prop-morphism-foldBag
+  : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b)
+  → Monoid.IsHomomorphism (foldBag f)
 --
-prop-deleteOne-member-True =
-    Data.Bag.Found.prop-deleteOne-member-True
+prop-morphism-foldBag =
+    Data.Bag.Prop.Core.prop-morphism-foldBag
 
--- | If the given item is a 'member' of the 'Bag',
--- 'deleteOne' will leave the 'Bag' unchanged.
-prop-deleteOne-member-False
-  : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x : a) (xs : Bag a)
-  → member x xs ≡ False
-  → xs ≡ deleteOne x xs
+-- | Universal property: Every 'Monoid' homomorphism factors
+-- through 'foldBag' and 'singleton'.
+prop-foldBag-singleton
+  : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b) (x : a)
+  → foldBag f (singleton x) ≡ f x
 --
-prop-deleteOne-member-False =
-    Data.Bag.Found.prop-deleteOne-member-False
+prop-foldBag-singleton =
+  Haskell.Data.Bag.Quotient.prop-foldBag-singleton
+
+-- | Universal property: 'foldBag' is the unique homomorphism.
+prop-foldBag-unique
+  : ∀ ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (g : Bag a → b)
+  → @0 Monoid.IsHomomorphism g
+  → ∀ (xs : Bag a) → foldBag (g ∘ singleton) xs ≡ g xs
+--
+prop-foldBag-unique =
+  Haskell.Data.Bag.Quotient.prop-foldBag-unique

@@ -196,6 +196,8 @@ renderExportList xs =
             [hsName <> (if doConstructors then " (..)" else "") <> ","]
         | isProperty agdaName =
             ["-- $" <> agdaName, ""]
+    renderExportItem (ExportModule qualifiedModuleName) =
+        ["module " <> qualifiedModuleName <> ","]
     renderExportItem (SectionHeader headerLevel text) =
         [renderHeaderLevel headerLevel <> " " <> text]
     renderExportItem _ = []

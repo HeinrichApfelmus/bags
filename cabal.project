@@ -1,3 +1,7 @@
 packages:
   lib/agda2hs-fixer
   lib/bags
+
+documentation: True
+haddock-hyperlink-source: True
+haddock-internal: True

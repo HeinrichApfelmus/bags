@@ -1,6 +1,17 @@
 
 -- | Core properties of 'Bag'
-module Data.Bag.Quotient.Prop where
+module Data.Bag.Prop.Core
+  {-|
+  -- * Properties
+  -- ** Equality Proofs
+  ; prop-Bag-equality
+  ; prop-Bag-equality-2
+
+  -- ** foldBag
+  ; prop-foldBag-function-mempty
+  ; prop-foldBag-function-<>
+  ; prop-morphism-foldBag-fun
+  -} where
 
 open import Haskell.Prelude
 
@@ -12,7 +23,14 @@ open import Haskell.Law.Monoid as Monoid
 import Data.Monoid.Refinement as Monoid
 import Data.Monoid.Morphism as Monoid
 
-open import Haskell.Data.Bag.Quotient public
+open import Haskell.Data.Bag.Quotient
+
+{-# FOREIGN AGDA2HS
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+#-}
+dummy : ⊤
+dummy = tt
+{-# COMPILE AGDA2HS dummy #-}
 
 {-----------------------------------------------------------------------------
     Core properties

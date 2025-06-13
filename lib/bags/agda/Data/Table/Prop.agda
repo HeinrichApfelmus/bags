@@ -10,14 +10,15 @@ module Data.Table.Prop
   ; prop-elements-singleton
   ; prop-morphism-elements
   -- ** Construction
+  ; prop-indexBy-singleton
   ; prop-morphism-indexBy
-  ; prop-elements-indexBy
   ; prop-lookup-indexBy
-  ; prop-equijoin-indexBy
+  ; prop-elements-indexBy
   -- ** Combine
   ; prop-merge-singleton
   ; prop-morphism-merge-1
   ; prop-morphism-merge-2
+  ; prop-equijoin-merge-indexBy
   -}
   where
 
@@ -199,6 +200,15 @@ prop-elements-indexBy {a} {k} xs f =
 {-----------------------------------------------------------------------------
     Properties
 ------------------------------------------------------------------------------}
+-- | 'indexBy' on a single item returns a 'singleton'
+-- whose key is a given by an application of the grouping function.
+prop-indexBy-singleton
+  : ∀ {k} ⦃ _ : Ord k ⦄ (x : a) (f : a → k)
+  → indexBy (Bag.singleton x) f
+    ≡ singleton (f x) x
+--
+prop-indexBy-singleton x f = refl
+
 -- | 'indexBy' filters items by 'key'.
 prop-lookup-indexBy
   : ∀ {k} ⦃ _ : Ord k ⦄ (key : k) (xs : Bag a) (f : a → k)
@@ -225,7 +235,7 @@ prop-lookup-indexBy key xs f =
     ... | False = refl
     ... | True  = refl
 
--- | Using 'indexBy' for each key will give an efficient implementation
+-- | Combinging 'merge' and 'indexBy' will give an efficient implementation
 -- implementation of 'equijoin'.
 --
 -- Proof: We use a proof idea that differs from the one in the paper.
@@ -236,13 +246,13 @@ prop-lookup-indexBy key xs f =
 --     and the right-hand side are monoid homomorphisms, and
 --
 --   * it holds on 'Data.Bag.singleton'.
-@0 prop-equijoin-indexBy
+@0 prop-equijoin-merge-indexBy
   : ∀ {k} ⦃ _ : Ord k ⦄ ⦃ _ : IsLawfulEq k ⦄
       (f : a → k) (g : b → k) (xs : Bag a) (ys : Bag b)
   → Bag.equijoin f g xs ys
     ≡ elements (merge (indexBy xs f) (indexBy ys g))
 --
-prop-equijoin-indexBy {a} {b} {k} f g xs ys =
+prop-equijoin-merge-indexBy {a} {b} {k} f g xs ys =
     Bag.prop-Bag-equality-2 lhs rhs
       (λ xs → Bag.prop-morphism-equijoin-2 f g xs)
       (λ xs → Monoid.prop-morphism-∘ _ _

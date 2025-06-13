@@ -40,13 +40,13 @@ toBag Nothing = mempty
 toBag (Just x) = x
 
 {-|
-Look up an index in a 'Table'.
+Look up a key in a 'Table'.
 -}
 lookup :: Ord k => k -> Table k a -> Bag a
 lookup = \ key -> toBag . Map.lookup key . \ r -> getTable r
 
 {-|
-Table with a single item.
+Construct a 'Table' with a single item.
 -}
 singleton :: Ord k => k -> a -> Table k a
 singleton key x = MkTable (Map.singleton key (Bag.singleton x))
@@ -67,13 +67,13 @@ indexBy :: Ord k => Bag a -> (a -> k) -> Table k a
 indexBy xs f = foldBag (\ x -> singleton (f x) x) xs
 
 {-|
-Forget the index.
+Forget the grouping of items by key.
 -}
 elements :: Ord k => Table k a -> Bag a
 elements = foldMap id . \ r -> getTable r
 
 {-|
-For each key, return the 'Data.Bag.cartesianProduct' of 'Bag's.
+For each key, construct the 'Data.Bag.cartesianProduct' of 'Bag's.
 -}
 merge :: Ord k => Table k a -> Table k b -> Table k (a, b)
 merge xs ys = MkTable (mergeRaw (getTable xs) (getTable ys))

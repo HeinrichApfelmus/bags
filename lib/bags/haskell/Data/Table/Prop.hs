@@ -15,13 +15,13 @@ module Data.Table.Prop
     -- $prop-morphism-elements
     
     -- ** Construction
-    -- $prop-morphism-indexBy
+    -- $prop-indexBy-singleton
     
-    -- $prop-elements-indexBy
+    -- $prop-morphism-indexBy
     
     -- $prop-lookup-indexBy
     
-    -- $prop-equijoin-indexBy
+    -- $prop-elements-indexBy
     
     -- ** Combine
     -- $prop-merge-singleton
@@ -29,6 +29,8 @@ module Data.Table.Prop
     -- $prop-morphism-merge-1
     
     -- $prop-morphism-merge-2
+    
+    -- $prop-equijoin-merge-indexBy
     
     )
     where
@@ -59,11 +61,11 @@ dummy = ()
     >   : ∀ {k a} ⦃ _ : Ord k ⦄ (key : k) (x : a)
     >   → elements (singleton key x) ≡ Bag.singleton x
 -}
-{- $prop-equijoin-indexBy
-#p:prop-equijoin-indexBy#
+{- $prop-equijoin-merge-indexBy
+#p:prop-equijoin-merge-indexBy#
 
-[prop-equijoin-indexBy]:
-    Using 'indexBy' for each key will give an efficient implementation
+[prop-equijoin-merge-indexBy]:
+    Combinging 'merge' and 'indexBy' will give an efficient implementation
     implementation of 'equijoin'.
     
     Proof: We use a proof idea that differs from the one in the paper.
@@ -75,11 +77,23 @@ dummy = ()
     
     * it holds on 'Data.Bag.singleton'.
     
-    > @0 prop-equijoin-indexBy
+    > @0 prop-equijoin-merge-indexBy
     >   : ∀ {k} ⦃ _ : Ord k ⦄ ⦃ _ : IsLawfulEq k ⦄
     >       (f : a → k) (g : b → k) (xs : Bag a) (ys : Bag b)
     >   → Bag.equijoin f g xs ys
     >     ≡ elements (merge (indexBy xs f) (indexBy ys g))
+-}
+{- $prop-indexBy-singleton
+#p:prop-indexBy-singleton#
+
+[prop-indexBy-singleton]:
+    'indexBy' on a single item returns a 'singleton'
+    whose key is a given by an application of the grouping function.
+    
+    > prop-indexBy-singleton
+    >   : ∀ {k} ⦃ _ : Ord k ⦄ (x : a) (f : a → k)
+    >   → indexBy (Bag.singleton x) f
+    >     ≡ singleton (f x) x
 -}
 {- $prop-lookup-indexBy
 #p:prop-lookup-indexBy#
