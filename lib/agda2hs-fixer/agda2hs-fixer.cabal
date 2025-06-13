@@ -1,6 +1,6 @@
 cabal-version:   3.6
 name:            agda2hs-fixer
-version:         0.1.0.0
+version:         0.1.1.0
 synopsis:        Fix Haskell files
 description:
   This utilitiy fixes the `.hs` output produced by `agda2hs`.

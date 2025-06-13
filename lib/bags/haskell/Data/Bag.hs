@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-dodgy-exports #-}
+
 module Data.Bag 
     (
     -- * Type
@@ -30,14 +32,18 @@ module Data.Bag
     map,
     concatMap,
     filter,
+    -- * Properties
+    module Data.Bag.Prop,
     )
     where
 
 import Prelude hiding (null, filter, lookup, map, concatMap)
 
+
 import Data.Bag.Def
 import Data.Bag.Quotient
 import Data.Bag.Found (deleteOne)
+import Data.Bag.Prop
 
 -- * Properties
 {- $prop-deleteOne-member-False

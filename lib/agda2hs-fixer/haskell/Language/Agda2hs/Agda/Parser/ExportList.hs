@@ -12,6 +12,9 @@ module Language.Agda2hs.Agda.Parser.ExportList
 
 import Prelude
 
+import Data.List
+    ( intercalate
+    )
 import Language.Agda2hs.Agda.Parser.Lexer
     ( space
     , symbol
@@ -84,9 +87,14 @@ exportList = do
 exportItems :: Parser [ExportItem]
 exportItems = do
     before <- sectionHeaders
-    identifier <- exportIdentifier
+    identifier <- exportModule <|> exportIdentifier
     after <- sectionHeaders
     pure $ before <> [identifier] <> after
+
+exportModule :: Parser ExportItem
+exportModule = do
+    _ <- symbolNoComments "module"
+    ExportModule . intercalate "." <$> (agdaNamePart `sepBy` C.string ".")
 
 exportIdentifier :: Parser ExportItem
 exportIdentifier =

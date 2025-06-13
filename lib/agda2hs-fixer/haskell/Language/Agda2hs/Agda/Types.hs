@@ -66,6 +66,7 @@ data HeaderLevel = H1 | H2 | H3
 
 data ExportItem
     = ExportIdentifier AgdaIdentifier ExportConstructors
+    | ExportModule AgdaIdentifier
     | SectionHeader HeaderLevel String
     deriving (Eq, Ord, Show)
 
