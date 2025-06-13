@@ -59,6 +59,13 @@ import      Data.Monoid.Refinement as Monoid
 
 open import Control.Monad.Prop as Monad
 
+{-# FOREIGN AGDA2HS
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+#-}
+dummy : ⊤
+dummy = tt
+{-# COMPILE AGDA2HS dummy #-}
+
 ------------------------------------------------------------------------------
 -- Move out: Additional type of monad
 
