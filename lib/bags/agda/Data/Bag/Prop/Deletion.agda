@@ -7,9 +7,11 @@ module Data.Bag.Prop.Deletion
   ; prop-deleteOne-member-False
   -} where
 
-open import Data.Bag.Def            public
-open import Data.Bag.Quotient.Prop  public
-open import Data.Bag.Found          public using (deleteOne)
+open import Haskell.Data.Bag.Quotient
+open import Data.Bag.Def
+open import Data.Bag.Prop.Core
+open import Data.Bag.Found using (deleteOne)
+import      Data.Bag.Found
 
 open import Haskell.Prelude
 open import Haskell.Law.Eq
@@ -17,9 +19,9 @@ open import Haskell.Law.Eq
 {-# FOREIGN AGDA2HS
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 #-}
-dummy : ⊤
-dummy = tt
-{-# COMPILE AGDA2HS dummy #-}
+dummyPropDeletion : ⊤
+dummyPropDeletion = tt
+{-# COMPILE AGDA2HS dummyPropDeletion #-}
 
 {-----------------------------------------------------------------------------
     Copy & Paste of relevant properties

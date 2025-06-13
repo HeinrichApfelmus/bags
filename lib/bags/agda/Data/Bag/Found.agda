@@ -11,8 +11,8 @@ open import Haskell.Law.Monoid
 
 open import Haskell.Data.Bag.Quotient
 open import Data.Bag.Def
-open import Data.Bag.Prop
-open import Data.Bag.Quotient.Prop
+open import Data.Bag.Prop.Core
+open import Data.Bag.Prop.Operations
 
 import Data.Monoid.Extra as Monoid
 import Data.Monoid.Morphism as Monoid

@@ -1,6 +1,6 @@
 
 -- | Proofs on 'Bag'.
-module Data.Bag.Prop
+module Data.Bag.Prop.Operations
   {-|
   -- * Query
   -- ** null
@@ -52,7 +52,8 @@ module Data.Bag.Prop
 
 open import Haskell.Prelude hiding (lookup; null; map; filter; concatMap)
 
-open import Data.Bag.Quotient.Prop
+open import Haskell.Data.Bag.Quotient
+open import Data.Bag.Prop.Core
 open import Data.Bag.Def
 
 open import Haskell.Prim.Alternative
@@ -76,9 +77,9 @@ open import Control.Monad.Prop as Monad
 {-# FOREIGN AGDA2HS
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 #-}
-dummy : ⊤
-dummy = tt
-{-# COMPILE AGDA2HS dummy #-}
+dummyProp : ⊤
+dummyProp = tt
+{-# COMPILE AGDA2HS dummyProp #-}
 
 ------------------------------------------------------------------------------
 -- Move out: Additional type of monad

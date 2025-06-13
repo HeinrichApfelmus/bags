@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Data.Bag.Prop 
+module Data.Bag.Prop.Operations 
     (
     -- * Query
     -- ** null
@@ -77,8 +77,8 @@ module Data.Bag.Prop
 
 import Prelude hiding (null, filter, lookup, map, concatMap)
 
-dummy :: ()
-dummy = ()
+dummyProp :: ()
+dummyProp = ()
 
 -- * Properties
 {- $prop-def-cartesianProduct
