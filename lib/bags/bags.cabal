@@ -69,6 +69,7 @@ library
   exposed-modules:
     Data.Bag
     Data.Bag.Prop
+    Data.Bag.Prop.Deletion
     Data.Monoid.Extra
     Data.Monoid.Refinement
     Data.Table

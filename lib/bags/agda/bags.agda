@@ -14,6 +14,7 @@ import Data.Monoid.Refinement
 import Data.Bag.Def
 import Data.Bag.Found
 import Data.Bag.Prop
+import Data.Bag.Prop.Deletion
 import Data.Bag.Raw
 
 import Data.Table.Def
