@@ -4,8 +4,8 @@ module Data.Bag
   ; Bag
   ; singleton
   ; foldBag
-    ; prop-foldBag-singleton
     ; prop-morphism-foldBag
+    ; prop-foldBag-singleton
     ; prop-foldBag-unique
 
   -- * Operations
@@ -76,7 +76,8 @@ import Data.Monoid.Morphism as Monoid
     Properties
     definitional
 ------------------------------------------------------------------------------}
--- | Universal property: 'foldBag' is a homomorphism of 'Monoid'.
+-- | Universal property: 'foldBag' is a homomorphism
+-- (see "Data.Monoid.Morphism#g:1") of 'Monoid'.
 prop-morphism-foldBag
   : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b)
   → Monoid.IsHomomorphism (foldBag f)
@@ -84,8 +85,9 @@ prop-morphism-foldBag
 prop-morphism-foldBag =
     Data.Bag.Prop.Core.prop-morphism-foldBag
 
--- | Universal property: Every 'Monoid' homomorphism factors
--- through 'foldBag' and 'singleton'.
+-- | Universal property: Every 'Monoid' homomorphism
+-- (see "Data.Monoid.Morphism#g:1")
+-- factors through 'foldBag' and 'singleton'.
 prop-foldBag-singleton
   : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b) (x : a)
   → foldBag f (singleton x) ≡ f x
@@ -93,7 +95,8 @@ prop-foldBag-singleton
 prop-foldBag-singleton =
   Haskell.Data.Bag.Quotient.prop-foldBag-singleton
 
--- | Universal property: 'foldBag' is the unique homomorphism.
+-- | Universal property: 'foldBag' is the unique homomorphism
+-- (see "Data.Monoid.Morphism#g:1").
 prop-foldBag-unique
   : ∀ ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (g : Bag a → b)
   → @0 Monoid.IsHomomorphism g

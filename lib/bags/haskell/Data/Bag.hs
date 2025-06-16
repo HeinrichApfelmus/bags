@@ -6,9 +6,9 @@ module Data.Bag
     Bag,
     singleton,
     foldBag,
-    -- $prop-foldBag-singleton
-    
     -- $prop-morphism-foldBag
+    
+    -- $prop-foldBag-singleton
     
     -- $prop-foldBag-unique
     
@@ -60,8 +60,9 @@ import Data.Bag.Prop.Operations
 #p:prop-foldBag-singleton#
 
 [prop-foldBag-singleton]:
-    Universal property: Every 'Monoid' homomorphism factors
-    through 'foldBag' and 'singleton'.
+    Universal property: Every 'Monoid' homomorphism
+    (see "Data.Monoid.Morphism#g:1")
+    factors through 'foldBag' and 'singleton'.
     
     > prop-foldBag-singleton
     >   : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b) (x : a)
@@ -71,7 +72,8 @@ import Data.Bag.Prop.Operations
 #p:prop-foldBag-unique#
 
 [prop-foldBag-unique]:
-    Universal property: 'foldBag' is the unique homomorphism.
+    Universal property: 'foldBag' is the unique homomorphism
+    (see "Data.Monoid.Morphism#g:1").
     
     > prop-foldBag-unique
     >   : ∀ ⦃ _ : Monoid.Commutative b ⦄ ⦃ _ : IsLawfulMonoid b ⦄ (g : Bag a → b)
@@ -82,7 +84,8 @@ import Data.Bag.Prop.Operations
 #p:prop-morphism-foldBag#
 
 [prop-morphism-foldBag]:
-    Universal property: 'foldBag' is a homomorphism of 'Monoid'.
+    Universal property: 'foldBag' is a homomorphism
+    (see "Data.Monoid.Morphism#g:1") of 'Monoid'.
     
     > prop-morphism-foldBag
     >   : ∀ ⦃ _ : Monoid.Commutative b ⦄ (f : a → b)
