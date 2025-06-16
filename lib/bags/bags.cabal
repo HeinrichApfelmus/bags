@@ -72,6 +72,7 @@ library
     Data.Bag.Prop.Deletion
     Data.Bag.Prop.Operations
     Data.Monoid.Extra
+    Data.Monoid.Morphism
     Data.Monoid.Refinement
     Data.Table
     Data.Table.Prop

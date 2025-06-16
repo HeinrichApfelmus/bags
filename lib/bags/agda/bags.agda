@@ -13,6 +13,7 @@ import Data.Monoid.Refinement
 
 import Data.Bag
 import Data.Bag.Raw
+import Data.Bag.Prop.Deletion
 
 import Data.Table.Def
 import Data.Table.Prop
