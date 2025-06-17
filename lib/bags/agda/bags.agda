@@ -17,5 +17,3 @@ import Data.Bag.Prop.Deletion
 
 import Data.Table.Def
 import Data.Table.Prop
-
-import Data.BagOld -- to be absorbed
