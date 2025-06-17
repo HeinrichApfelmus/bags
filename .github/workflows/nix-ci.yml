@@ -1,0 +1,27 @@
+name: Nix CI
+
+# Trigger the workflow on push or pull request, but only for the main branch
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  nix-shell:
+    name: "Test building inside a nix shell"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: nixbuild/nix-quick-install-action@v30
+      with:
+        nix_conf: |
+          keep-env-derivations = true
+          keep-outputs = true
+    - name: Restore and save Nix store
+      uses: nix-community/cache-nix-action@v6
+      with:
+        primary-key: nix-devshell-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+    - name: drop into the devshell and run cabal
+      # for some reason this doesn't work without update
+      # even though it doesn't actually download anything
+      run: nix develop -Lv -c bash -c "cabal update; just ci"

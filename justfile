@@ -15,3 +15,6 @@ build0:
 
 doc target='all':
     cabal haddock -v0 -O0 -j {{target}}
+
+ci:
+    just haskell && git diff --exit-code && just build0 && just doc
