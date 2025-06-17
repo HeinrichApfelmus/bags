@@ -20,6 +20,9 @@ open Conj public
 {-# COMPILE AGDA2HS Conj newtype #-}
 
 instance
+  iEqConj : Eq Conj
+  iEqConj ._==_ x y = getConj x == getConj y
+
   iSemigroupConj : Semigroup Conj
   iSemigroupConj ._<>_ x y = record{getConj = getConj x && getConj y}
 
@@ -60,6 +63,9 @@ open Disj public
 {-# COMPILE AGDA2HS Disj newtype #-}
 
 instance
+  iEqDisj : Eq Disj
+  iEqDisj ._==_ x y = getDisj x == getDisj y
+
   iSemigroupDisj : Semigroup Disj
   iSemigroupDisj ._<>_ (MkDisj x) (MkDisj y) = MkDisj (x || y)
 
@@ -100,6 +106,9 @@ open Sum' public
 {-# COMPILE AGDA2HS Sum' newtype #-}
 
 instance
+  iEqSum' : ⦃ Eq a ⦄ → Eq (Sum' a)
+  iEqSum' ._==_ x y = getSum' x == getSum' y
+  
   iSemigroupSum' : ⦃ Num a ⦄ → Semigroup (Sum' a)
   iSemigroupSum' ._<>_ x y = record{getSum' = getSum' x + getSum' y}
 
