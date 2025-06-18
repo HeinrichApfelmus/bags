@@ -78,6 +78,7 @@ library
     Data.Table.Prop
   other-modules:
     Data.Bag.Def
+    Data.Bag.Counts
     Data.Bag.Found
     Data.Bag.Quotient
     Data.Bag.Raw

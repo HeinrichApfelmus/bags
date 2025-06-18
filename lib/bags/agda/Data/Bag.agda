@@ -38,6 +38,10 @@ module Data.Bag
   ; concatMap
   ; filter
 
+  -- ** Conversion
+  ; toCounts
+  ; fromCounts
+
   -- * Properties
   ; module Data.Bag.Prop.Core
   ; module Data.Bag.Prop.Deletion
@@ -60,6 +64,7 @@ open import Haskell.Data.Bag.Quotient   public hiding
   ; prop-foldBag-unique
   )
 open import Data.Bag.Def                public
+open import Data.Bag.Counts             using (toCounts; fromCounts)
 open import Data.Bag.Found              public using (deleteOne)
 import      Data.Bag.Prop.Core
 open import Data.Bag.Prop.Core          public hiding
@@ -70,8 +75,13 @@ open import Haskell.Prelude
 open import Haskell.Law.Eq
 open import Haskell.Law.Monoid
 
+import Data.Map as Map
 import Data.Monoid.Refinement as Monoid
 import Data.Monoid.Morphism as Monoid
+
+{-# FOREIGN AGDA2HS
+  import Data.Bag.Counts (toCounts, fromCounts)
+#-}
 
 {-----------------------------------------------------------------------------
     Properties

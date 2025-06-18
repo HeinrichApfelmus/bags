@@ -39,6 +39,9 @@ module Data.Bag
     map,
     concatMap,
     filter,
+    -- ** Conversion
+    toCounts,
+    fromCounts,
     -- * Properties
     module Data.Bag.Prop.Core,
     module Data.Bag.Prop.Deletion,
@@ -55,6 +58,8 @@ import Data.Bag.Found (deleteOne)
 import Data.Bag.Prop.Core
 import Data.Bag.Prop.Deletion
 import Data.Bag.Prop.Operations
+
+import Data.Bag.Counts (toCounts, fromCounts)
 
 -- * Properties
 {- $prop-foldBag-singleton

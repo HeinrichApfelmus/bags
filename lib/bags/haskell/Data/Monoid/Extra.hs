@@ -35,3 +35,15 @@ instance (Num a) => Semigroup (Sum' a) where
 instance (Num a) => Monoid (Sum' a) where
     mempty = MkSum 0
 
+-- * Properties
+{- $prop-mconcat-++
+#p:prop-mconcat-++#
+
+[prop-mconcat-++]:
+    'mconcat' is a monoid homomorphism.
+    
+    > prop-mconcat-++
+    >   : ∀ ⦃ _ : Monoid a ⦄ ⦃ _ : IsLawfulMonoid a ⦄ 
+    >     (xs ys : List a)
+    >   → mconcat (xs ++ ys) ≡ mconcat xs <> mconcat ys
+-}

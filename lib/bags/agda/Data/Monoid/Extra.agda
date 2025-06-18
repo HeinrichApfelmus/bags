@@ -7,6 +7,30 @@ open import Haskell.Law.Monoid
 open import Haskell.Law.Num
 
 -------------------------------------------------------------------------------
+-- Properties
+
+-- | 'mconcat' is a monoid homomorphism.
+prop-mconcat-++
+  : ∀ ⦃ _ : Monoid a ⦄ ⦃ _ : IsLawfulMonoid a ⦄ 
+    (xs ys : List a)
+  → mconcat (xs ++ ys) ≡ mconcat xs <> mconcat ys
+--
+prop-mconcat-++ {a} [] ys
+  rewrite concatenation ([] ++ ys)
+  | concatenation {a} []
+  | sym (concatenation ys)
+  | leftIdentity (mconcat ys)
+  = refl
+prop-mconcat-++ (x ∷ xs) ys
+  rewrite concatenation ((x ∷ xs) ++ ys)
+  | concatenation (x ∷ xs)
+  | sym (concatenation (xs ++ ys))
+  | sym (concatenation xs)
+  | prop-mconcat-++ xs ys
+  | associativity x (mconcat xs) (mconcat ys)
+  = refl
+
+-------------------------------------------------------------------------------
 --
 
 -- | Boolean monoid under conjunction '(&&)'.

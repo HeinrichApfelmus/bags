@@ -12,6 +12,7 @@ import Data.Monoid.Morphism
 import Data.Monoid.Refinement
 
 import Data.Bag
+import Data.Bag.Counts
 import Data.Bag.Raw
 import Data.Bag.Prop.Deletion
 
