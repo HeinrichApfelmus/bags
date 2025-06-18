@@ -14,7 +14,7 @@ module Data.Table.Def
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 import qualified Data.Bag.Def as Bag (cartesianProduct)
 import Data.Bag.Quotient (Bag, foldBag)
 import qualified Data.Bag.Quotient as Bag (singleton)

@@ -17,7 +17,7 @@ module Data.Monoid.Morphism
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 dummyHomo :: ()
 dummyHomo = ()

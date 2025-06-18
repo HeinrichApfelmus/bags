@@ -81,4 +81,5 @@ library
     Data.Bag.Found
     Data.Bag.Quotient
     Data.Bag.Raw
+    Data.List.Extra
     Data.Table.Def

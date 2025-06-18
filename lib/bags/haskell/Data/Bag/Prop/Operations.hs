@@ -75,7 +75,7 @@ module Data.Bag.Prop.Operations
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 dummyProp :: ()
 dummyProp = ()

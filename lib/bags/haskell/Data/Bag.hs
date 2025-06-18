@@ -45,7 +45,7 @@ module Data.Bag
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 
 import Data.Bag.Def

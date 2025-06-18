@@ -1,6 +1,6 @@
 module Data.Monoid.Extra where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 {-|
 Boolean monoid under conjunction '(&&)'.

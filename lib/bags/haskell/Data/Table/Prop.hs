@@ -35,7 +35,7 @@ module Data.Table.Prop
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 dummy :: ()
 dummy = ()
