@@ -35,6 +35,13 @@ instance Semigroup PositiveNat where
     OnePlus x <> OnePlus y = OnePlus (x + y + 1)
 
 {-|
+Construct a 'Bag' by replicating one item multiple times.
+-}
+replicatePositiveNat :: PositiveNat -> a -> Bag a
+replicatePositiveNat n x
+  = mconcat $ replicateNat (natFromPositiveNat n) (Bag.singleton x)
+
+{-|
 'Counts' is a different representation for 'Bag',
 where items are mapped to their number of occurrences.
 
@@ -56,15 +63,15 @@ instance (Ord a) => Monoid (Counts a) where
 instance (Ord a) => Data.Monoid.Refinement.Commutative (Counts a)
          where
 
-toCounts' :: Ord a => Bag a -> Counts a
-toCounts' = foldBag singleton
+mtoCounts :: Ord a => Bag a -> Counts a
+mtoCounts = foldBag singleton
 
 {-|
 Convert a 'Bag' to a mapping from items to their number of occurrences.
 -}
 toCounts :: Ord a => Bag a -> Map a Natural
 toCounts
-  = fmap natFromPositiveNat . (\ r -> getCounts r) . toCounts'
+  = fmap natFromPositiveNat . (\ r -> getCounts r) . mtoCounts
 
 replicateBag :: Natural -> a -> Bag a
 replicateBag n x = mconcat $ replicateNat n (Bag.singleton x)
@@ -74,6 +81,11 @@ Convert a map of items and their number of occurrences to a 'Bag'.
 -}
 fromCounts :: Ord a => Map a Natural -> Bag a
 fromCounts = foldMap id . Map.mapWithKey (flip replicateBag)
+
+mfromCounts :: Ord a => Counts a -> Bag a
+mfromCounts
+  = foldMap id .
+      Map.mapWithKey (flip replicatePositiveNat) . \ r -> getCounts r
 
 -- * Properties
 {- $prop-Counts-<>-assoc

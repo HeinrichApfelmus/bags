@@ -102,6 +102,8 @@ replicatePositiveNat : PositiveNat → a → Bag a
 replicatePositiveNat n x =
   mconcat $ replicateNat (natFromPositiveNat n) (Bag.singleton x)
 
+{-# COMPILE AGDA2HS replicatePositiveNat #-}
+
 --
 prop-replicatePositiveNat-<>
   : ∀ (m n : PositiveNat) (x : a)
@@ -229,14 +231,14 @@ instance
     Operations
     Bag
 ------------------------------------------------------------------------------}
-toCounts' : ∀ ⦃ _ : Ord a ⦄ → Bag a → Counts a
-toCounts' = foldBag (λ x → singleton x)
+mtoCounts : ∀ ⦃ _ : Ord a ⦄ → Bag a → Counts a
+mtoCounts = foldBag (λ x → singleton x)
 
-{-# COMPILE AGDA2HS toCounts' #-}
+{-# COMPILE AGDA2HS mtoCounts #-}
 
 -- | Convert a 'Bag' to a mapping from items to their number of occurrences.
 toCounts : ⦃ Ord a ⦄ → Bag a → Map.Map a Nat
-toCounts = fmap natFromPositiveNat ∘ getCounts ∘ toCounts'
+toCounts = fmap natFromPositiveNat ∘ getCounts ∘ mtoCounts
 
 {-# COMPILE AGDA2HS toCounts #-}
 
@@ -251,6 +253,8 @@ fromCounts = foldMap id ∘ Map.mapWithKey (flip replicateBag)
 
 {-# COMPILE AGDA2HS fromCounts #-}
 
-fromCounts' : ⦃ _ : Ord a ⦄ → Counts a → Bag a
-fromCounts' =
+mfromCounts : ⦃ _ : Ord a ⦄ → Counts a → Bag a
+mfromCounts =
   foldMap id ∘ Map.mapWithKey (flip replicatePositiveNat) ∘ getCounts
+
+{-# COMPILE AGDA2HS mfromCounts #-}
