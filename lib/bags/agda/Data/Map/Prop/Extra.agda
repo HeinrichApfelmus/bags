@@ -279,3 +279,36 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
       ... | Just x  | Nothing | Just z  = refl 
       ... | Just x  | Just y  | Nothing = refl 
       ... | Just x  | Just y  | Just z  = cong Just (cond x y z) 
+
+{-----------------------------------------------------------------------------
+    Proofs
+    mapWithKey
+------------------------------------------------------------------------------}
+module _ {k : Type} ⦃ _ : Ord k ⦄ where
+
+  -- | 'mapWithKey' distributes over 'unionWith' if the
+  -- involved functions distribue over each other.
+  prop-mapWithKey-unionWith
+    : ∀ (f : k → a → b) (g : a → a → a) (xs ys : Map k a)
+        (g' : b → b → b)
+    → (∀ key x y → f key (g x y) ≡ g' (f key x) (f key y))
+    → mapWithKey f (unionWith g xs ys)
+      ≡ unionWith g' (mapWithKey f xs) (mapWithKey f ys)
+  --
+  prop-mapWithKey-unionWith f g xs ys g' cond = prop-equality lemma
+    where
+      lemma
+        : ∀ (key : k)
+        → lookup key (mapWithKey f (unionWith g xs ys))
+          ≡ lookup key (unionWith g' (mapWithKey f xs) (mapWithKey f ys))
+      lemma key
+        rewrite prop-lookup-mapWithKey key (unionWith g xs ys) f
+        rewrite prop-lookup-unionWith key g xs ys
+        rewrite prop-lookup-unionWith key g' (mapWithKey f xs) (mapWithKey f ys)
+        rewrite prop-lookup-mapWithKey key xs f
+        rewrite prop-lookup-mapWithKey key ys f
+        with lookup key xs | lookup key ys
+      ... | Nothing | Nothing = refl
+      ... | Nothing | Just y  = refl
+      ... | Just x  | Nothing = refl
+      ... | Just x  | Just y  = cong Just (cond key x y)
