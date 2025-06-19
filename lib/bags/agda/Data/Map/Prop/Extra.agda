@@ -286,6 +286,21 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
 ------------------------------------------------------------------------------}
 module _ {k : Type} ⦃ _ : Ord k ⦄ where
 
+  -- | 'mapWithKey' an an empty map gives the empty map.
+  prop-mapWithKey-empty
+    : ∀ (f : k → a → b)
+    → mapWithKey f empty ≡ empty
+  --
+  prop-mapWithKey-empty {a = a} {b = b} f = prop-equality lemma
+    where
+      lemma
+        : ∀ (key : k) → lookup key (mapWithKey f empty) ≡ lookup key empty
+      lemma key
+        rewrite prop-lookup-mapWithKey key empty f
+        rewrite prop-lookup-empty {a = a} key
+        rewrite prop-lookup-empty {a = b} key
+        = refl
+
   -- | 'mapWithKey' distributes over 'unionWith' if the
   -- involved functions distribue over each other.
   prop-mapWithKey-unionWith
