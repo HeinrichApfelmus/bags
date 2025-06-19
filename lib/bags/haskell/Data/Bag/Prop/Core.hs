@@ -18,7 +18,7 @@ module Data.Bag.Prop.Core
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 dummy :: ()
 dummy = ()

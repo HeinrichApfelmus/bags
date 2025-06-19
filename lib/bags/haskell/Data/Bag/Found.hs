@@ -1,6 +1,6 @@
 module Data.Bag.Found where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 import Data.Bag.Quotient (Bag, foldBag, singleton)
 import qualified Data.Monoid.Refinement (Commutative)
 

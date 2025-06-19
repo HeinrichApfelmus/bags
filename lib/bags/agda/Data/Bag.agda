@@ -21,6 +21,7 @@ module Data.Bag
   -- ** Construction
   ; fromMaybe
   ; fromList
+  ; replicate
 
   -- ** Deletion
   ; deleteOne

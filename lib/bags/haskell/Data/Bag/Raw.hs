@@ -1,6 +1,6 @@
 module Data.Bag.Raw where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 data Bag a = Single a
            | Empty

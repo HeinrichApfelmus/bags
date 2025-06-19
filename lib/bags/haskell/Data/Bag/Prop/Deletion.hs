@@ -11,7 +11,7 @@ module Data.Bag.Prop.Deletion
     )
     where
 
-import Prelude hiding (null, filter, lookup, map, concatMap)
+import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 
 dummyPropDeletion :: ()
 dummyPropDeletion = ()

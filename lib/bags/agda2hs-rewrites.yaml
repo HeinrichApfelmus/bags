@@ -6,3 +6,4 @@ prelude:
     - "lookup"
     - "map"
     - "concatMap"
+    - "replicate"
