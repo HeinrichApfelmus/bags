@@ -7,3 +7,7 @@ prelude:
     - "map"
     - "concatMap"
     - "replicate"
+rewrites:
+  - from: "Agda.Builtin.Int.Int.pos"
+    to: "Prelude.toInteger"
+    importing: "Prelude"
