@@ -24,6 +24,7 @@ module Data.Bag
     -- ** Construction
     fromMaybe,
     fromList,
+    replicate,
     -- ** Deletion
     deleteOne,
     -- $prop-deleteOne-member-True

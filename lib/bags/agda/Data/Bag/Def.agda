@@ -22,6 +22,7 @@ open import Haskell.Prim.Tuple
 open import Haskell.Law.Function
 open import Haskell.Law.Num
 
+open import Haskell.Data.List.Extra using (replicateNat)
 open import Haskell.Data.Bag.Quotient
 open import Data.Monoid.Extra
 import      Data.Monoid.Refinement as Monoid
@@ -94,6 +95,12 @@ fromList : List a → Bag a
 fromList = foldMap singleton
 
 {-# COMPILE AGDA2HS fromList #-}
+
+-- | Construct a 'Bag' containing one item a given number of times.
+replicate : Nat → a → Bag a
+replicate n = fromList ∘ replicateNat n
+
+{-# COMPILE AGDA2HS replicate #-}
 
 {-----------------------------------------------------------------------------
     Operations

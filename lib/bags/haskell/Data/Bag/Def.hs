@@ -4,8 +4,10 @@ module Data.Bag.Def where
 
 import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 import Data.Bag.Quotient (Bag, foldBag, singleton)
+import Data.List.Extra (replicateNat)
 import Data.Monoid.Extra (Conj(MkConj, getConj), Disj(MkDisj, getDisj), Sum'(MkSum, getSum'))
 import Data.Monoid.Refinement ()
+import Numeric.Natural (Natural)
 
 
 
@@ -68,6 +70,12 @@ Construct a 'Bag' with the same items as the given list.
 -}
 fromList :: [a] -> Bag a
 fromList = foldMap singleton
+
+{-|
+Construct a 'Bag' containing one item a given number of times.
+-}
+replicate :: Natural -> a -> Bag a
+replicate n = fromList . replicateNat n
 
 instance Functor Bag where
     fmap = map
