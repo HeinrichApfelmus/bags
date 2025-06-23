@@ -10,6 +10,7 @@ import Data.Monoid.Refinement as Monoid
 
 open import Haskell.Law.Eq
 open import Haskell.Law.Equality
+open import Haskell.Law.Monoid
 
 ------------------------------------------------------------------------------
 -- Move out: Properties of if_then_else
@@ -76,6 +77,22 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
   postulate
    prop-toAscList-empty
     : toAscList (empty {k} {a}) ≡ []
+
+{-----------------------------------------------------------------------------
+    Proofs
+    foldMap id
+------------------------------------------------------------------------------}
+module _ {k : Type} ⦃ _ : Ord k ⦄ where
+
+  --
+  prop-fold-singleton
+    : ∀ ⦃ _ : Monoid a ⦄ ⦃ _ : IsLawfulMonoid a ⦄ (key : k) (x : a)
+    → let fold = foldMap id
+      in  fold (singleton key x) ≡ x
+  --
+  prop-fold-singleton key x
+    rewrite prop-toAscList-singleton key x
+    = rightIdentity _
 
 {-----------------------------------------------------------------------------
     Proofs
@@ -279,3 +296,72 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
       ... | Just x  | Nothing | Just z  = refl 
       ... | Just x  | Just y  | Nothing = refl 
       ... | Just x  | Just y  | Just z  = cong Just (cond x y z) 
+
+{-----------------------------------------------------------------------------
+    Proofs
+    mapWithKey
+------------------------------------------------------------------------------}
+module _ {k : Type} ⦃ _ : Ord k ⦄ where
+
+  -- | 'mapWithKey' on a singleton maps the element of the singleton.
+  prop-mapWithKey-singleton
+    : ∀ ⦃ _ : IsLawfulEq k ⦄ (f : k → a → b) (key : k) (x : a)
+    → mapWithKey f (singleton key x) ≡ singleton key (f key x) 
+  --
+  prop-mapWithKey-singleton {a = a} {b = b} f key x = prop-equality lemma
+    where
+      lemma
+        : ∀ (key2 : k)
+        → lookup key2 (mapWithKey f (singleton key x))
+          ≡ lookup key2 (singleton key (f key x))
+      lemma key2
+        rewrite prop-lookup-mapWithKey key2 (singleton key x) f
+        rewrite prop-lookup-insert {a = a} key2 key x empty
+        rewrite prop-lookup-empty {a = a} key2
+        rewrite prop-lookup-insert {a = b} key2 key (f key x) empty
+        rewrite prop-lookup-empty {a = b} key2
+        with key2 == key in eq
+      ... | False = refl
+      ... | True  rewrite equality key2 key eq = refl
+
+  -- | 'mapWithKey' an an empty map gives the empty map.
+  prop-mapWithKey-empty
+    : ∀ (f : k → a → b)
+    → mapWithKey f empty ≡ empty
+  --
+  prop-mapWithKey-empty {a = a} {b = b} f = prop-equality lemma
+    where
+      lemma
+        : ∀ (key : k) → lookup key (mapWithKey f empty) ≡ lookup key empty
+      lemma key
+        rewrite prop-lookup-mapWithKey key empty f
+        rewrite prop-lookup-empty {a = a} key
+        rewrite prop-lookup-empty {a = b} key
+        = refl
+
+  -- | 'mapWithKey' distributes over 'unionWith' if the
+  -- involved functions distribue over each other.
+  prop-mapWithKey-unionWith
+    : ∀ (f : k → a → b) (g : a → a → a) (xs ys : Map k a)
+        (g' : b → b → b)
+    → (∀ key x y → f key (g x y) ≡ g' (f key x) (f key y))
+    → mapWithKey f (unionWith g xs ys)
+      ≡ unionWith g' (mapWithKey f xs) (mapWithKey f ys)
+  --
+  prop-mapWithKey-unionWith f g xs ys g' cond = prop-equality lemma
+    where
+      lemma
+        : ∀ (key : k)
+        → lookup key (mapWithKey f (unionWith g xs ys))
+          ≡ lookup key (unionWith g' (mapWithKey f xs) (mapWithKey f ys))
+      lemma key
+        rewrite prop-lookup-mapWithKey key (unionWith g xs ys) f
+        rewrite prop-lookup-unionWith key g xs ys
+        rewrite prop-lookup-unionWith key g' (mapWithKey f xs) (mapWithKey f ys)
+        rewrite prop-lookup-mapWithKey key xs f
+        rewrite prop-lookup-mapWithKey key ys f
+        with lookup key xs | lookup key ys
+      ... | Nothing | Nothing = refl
+      ... | Nothing | Just y  = refl
+      ... | Just x  | Nothing = refl
+      ... | Just x  | Just y  = cong Just (cond key x y)
