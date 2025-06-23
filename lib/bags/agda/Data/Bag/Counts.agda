@@ -105,6 +105,14 @@ replicatePositiveNat n x =
 {-# COMPILE AGDA2HS replicatePositiveNat #-}
 
 --
+prop-replicatePositiveNat-one
+  : ∀ (x : a) → replicatePositiveNat one x ≡ Bag.singleton x
+--
+prop-replicatePositiveNat-one x
+  rewrite Monoid.concatenation (Bag.singleton x ∷ [])
+  = Monoid.rightIdentity _
+
+--
 prop-replicatePositiveNat-<>
   : ∀ (m n : PositiveNat) (x : a)
   → replicatePositiveNat (m <> n) x
