@@ -286,6 +286,27 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
 ------------------------------------------------------------------------------}
 module _ {k : Type} ⦃ _ : Ord k ⦄ where
 
+  -- | 'mapWithKey' on a singleton maps the element of the singleton.
+  prop-mapWithKey-singleton
+    : ∀ ⦃ _ : IsLawfulEq k ⦄ (f : k → a → b) (key : k) (x : a)
+    → mapWithKey f (singleton key x) ≡ singleton key (f key x) 
+  --
+  prop-mapWithKey-singleton {a = a} {b = b} f key x = prop-equality lemma
+    where
+      lemma
+        : ∀ (key2 : k)
+        → lookup key2 (mapWithKey f (singleton key x))
+          ≡ lookup key2 (singleton key (f key x))
+      lemma key2
+        rewrite prop-lookup-mapWithKey key2 (singleton key x) f
+        rewrite prop-lookup-insert {a = a} key2 key x empty
+        rewrite prop-lookup-empty {a = a} key2
+        rewrite prop-lookup-insert {a = b} key2 key (f key x) empty
+        rewrite prop-lookup-empty {a = b} key2
+        with key2 == key in eq
+      ... | False = refl
+      ... | True  rewrite equality key2 key eq = refl
+
   -- | 'mapWithKey' an an empty map gives the empty map.
   prop-mapWithKey-empty
     : ∀ (f : k → a → b)
