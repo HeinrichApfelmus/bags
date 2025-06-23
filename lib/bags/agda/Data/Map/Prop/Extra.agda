@@ -10,6 +10,7 @@ import Data.Monoid.Refinement as Monoid
 
 open import Haskell.Law.Eq
 open import Haskell.Law.Equality
+open import Haskell.Law.Monoid
 
 ------------------------------------------------------------------------------
 -- Move out: Properties of if_then_else
@@ -76,6 +77,22 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
   postulate
    prop-toAscList-empty
     : toAscList (empty {k} {a}) ≡ []
+
+{-----------------------------------------------------------------------------
+    Proofs
+    foldMap id
+------------------------------------------------------------------------------}
+module _ {k : Type} ⦃ _ : Ord k ⦄ where
+
+  --
+  prop-fold-singleton
+    : ∀ ⦃ _ : Monoid a ⦄ ⦃ _ : IsLawfulMonoid a ⦄ (key : k) (x : a)
+    → let fold = foldMap id
+      in  fold (singleton key x) ≡ x
+  --
+  prop-fold-singleton key x
+    rewrite prop-toAscList-singleton key x
+    = rightIdentity _
 
 {-----------------------------------------------------------------------------
     Proofs
