@@ -8,6 +8,7 @@ import Data.List.Extra (replicateNat)
 import Data.Monoid.Extra (Conj(MkConj, getConj), Disj(MkDisj, getDisj), Sum'(MkSum, getSum'))
 import Data.Monoid.Refinement ()
 import Data.Set (Set)
+import qualified Data.Set (singleton)
 import Numeric.Natural (Natural)
 
 
@@ -77,6 +78,12 @@ Construct a 'Bag' with the same items as the given 'Set'.
 -}
 fromSet :: Set a -> Bag a
 fromSet = foldMap singleton
+
+{-|
+Remove duplicate items from a 'Bag'.
+-}
+nub :: Ord a => Bag a -> Bag a
+nub = fromSet . foldBag Data.Set.singleton
 
 {-|
 Construct a 'Bag' containing one item a given number of times.

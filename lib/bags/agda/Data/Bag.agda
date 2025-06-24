@@ -26,8 +26,7 @@ module Data.Bag
 
   -- ** Deletion
   ; deleteOne
-    ; prop-deleteOne-member-True
-    ; prop-deleteOne-member-False
+  ; nub
 
   -- ** Combine
   ; union
