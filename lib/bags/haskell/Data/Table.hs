@@ -8,11 +8,15 @@ module Data.Table
     -- ** Query
     lookup,
     elements,
+    getMap,
     -- ** Construction
     singleton,
     indexBy,
     -- ** Combine
     merge,
+    -- ** Conversion
+    fromMap,
+    fromSingletonsMap,
 
     -- * Properties
     module Data.Table.Prop
