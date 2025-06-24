@@ -10,12 +10,14 @@ module Data.Monoid.Refinement
 open import Haskell.Prim
 open import Haskell.Prim.Monoid
 open import Haskell.Prim.Num
+open import Haskell.Prim.Ord
 open import Haskell.Prim.Tuple
 
 open import Haskell.Law
 open import Haskell.Law.Extensionality
 open import Haskell.Law.Num
 
+open import Data.Set using (Set; iSetMonoid)
 open import Data.Monoid.Extra
 
 -------------------------------------------------------------------------------
@@ -86,12 +88,17 @@ instance
   iCommutativeSum' .commutative record{getSum' = x} record{getSum' = y}
     = cong (λ o → record { getSum' = o }) (+-comm x y)
 
+  iCommutativeSet : ⦃ _ : Ord a ⦄ → @0 ⦃ IsLawfulEq a ⦄ → Commutative (Set a) 
+  iCommutativeSet .monoid = iSetMonoid
+  iCommutativeSet {a} .commutative x y = Data.Set.prop-union-sym {a} {x} {y}
+
 {-# COMPILE AGDA2HS iCommutativeUnit #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₂ #-}
 {-# COMPILE AGDA2HS iCommutativeTuple₃ #-}
 {-# COMPILE AGDA2HS iCommutativeConj #-}
 {-# COMPILE AGDA2HS iCommutativeDisj #-}
 {-# COMPILE AGDA2HS iCommutativeSum' #-}
+{-# COMPILE AGDA2HS iCommutativeSet #-}
 
 {- *-comm is not part of IsLawfulNum yet?!
 

@@ -19,9 +19,11 @@ open import Haskell.Prim.Num
 open import Haskell.Prim.Ord
 open import Haskell.Prim.Tuple
 
+open import Haskell.Law.Eq
 open import Haskell.Law.Function
 open import Haskell.Law.Num
 
+open import Data.Set using (Set)
 open import Haskell.Data.List.Extra using (replicateNat)
 open import Haskell.Data.Bag.Quotient
 open import Data.Monoid.Extra
@@ -95,6 +97,18 @@ fromList : List a → Bag a
 fromList = foldMap singleton
 
 {-# COMPILE AGDA2HS fromList #-}
+
+-- | Construct a 'Bag' with the same items as the given 'Set'.
+fromSet : Set a → Bag a
+fromSet = foldMap singleton
+
+{-# COMPILE AGDA2HS fromSet #-}
+
+-- | Remove duplicate items from a 'Bag'.
+nub : ⦃ _ : Ord a ⦄ → @0 ⦃ IsLawfulEq a ⦄ → Bag a → Bag a
+nub = fromSet ∘ foldBag Data.Set.singleton
+
+{-# COMPILE AGDA2HS nub #-}
 
 -- | Construct a 'Bag' containing one item a given number of times.
 replicate : Nat → a → Bag a

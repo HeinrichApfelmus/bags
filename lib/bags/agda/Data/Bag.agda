@@ -21,12 +21,12 @@ module Data.Bag
   -- ** Construction
   ; fromMaybe
   ; fromList
+  ; fromSet
   ; replicate
 
   -- ** Deletion
   ; deleteOne
-    ; prop-deleteOne-member-True
-    ; prop-deleteOne-member-False
+  ; nub
 
   -- ** Combine
   ; union
