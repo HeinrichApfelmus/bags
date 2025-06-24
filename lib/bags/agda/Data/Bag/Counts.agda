@@ -28,18 +28,23 @@ import      Data.Map.Prop.Extra as Map
 
 open import Haskell.Prim using (monusNat)
 open import Haskell.Law.Num
+open import Haskell.Law.Eq
 open import Haskell.Law.Equality
 open import Haskell.Law.Extensionality
 open import Haskell.Law.Maybe using (Just-injective)
 import      Haskell.Law.Monoid as Monoid
+open import Haskell.Law.Ord
 
 open import Data.Monoid.Extra renaming (Sum' to Sum; getSum' to getSum)
 import Data.Monoid.Morphism as Monoid
 import Data.Monoid.Refinement as Monoid
 
+{-# FOREIGN AGDA2HS
+{-# OPTIONS_GHC -Wno-unused-top-binds -Wno-orphans #-}
+#-}
+
 {-----------------------------------------------------------------------------
-    Count
-    Type with invariant
+    PositiveNat
 ------------------------------------------------------------------------------}
 -- | A positive natural number.
 data PositiveNat : Type where
@@ -48,6 +53,18 @@ data PositiveNat : Type where
 open PositiveNat
 
 {-# COMPILE AGDA2HS PositiveNat newtype #-}
+
+instance
+  iEqPositiveNat : Eq PositiveNat
+  iEqPositiveNat ._==_ (OnePlus n) (OnePlus m) = n == m
+
+  iIsLawfulEqPositiveNat : IsLawfulEq PositiveNat
+  iIsLawfulEqPositiveNat .isEquality (OnePlus n) (OnePlus m)
+    with n == m in eq
+  ... | False = λ { refl → nequality n n eq refl}
+  ... | True  = cong OnePlus (equality n m eq)
+
+{-# COMPILE AGDA2HS iEqPositiveNat derive #-}
 
 one : PositiveNat
 one = OnePlus 0
@@ -145,6 +162,18 @@ prop-Counts-equality
   → xs ≡ ys
 --
 prop-Counts-equality refl = refl
+
+instance
+  iEqCounts : ⦃ _ : Ord a ⦄ → Eq (Counts a)
+  iEqCounts ._==_ xs ys = getCounts xs == getCounts ys
+
+  iIsLawfulEqCounts : ⦃ _ : Ord a ⦄ → ⦃ _ : IsLawfulOrd a ⦄ → IsLawfulEq (Counts a)
+  iIsLawfulEqCounts .isEquality xs ys
+    with xs == ys in eq
+  ... | False = λ { refl → nequality (getCounts xs) _ eq refl }
+  ... | True  = prop-Counts-equality $ equality (getCounts xs) (getCounts ys) eq
+
+{-# COMPILE AGDA2HS iEqCounts derive #-}
 
 {-----------------------------------------------------------------------------
     Operations
@@ -266,3 +295,9 @@ mfromCounts =
   foldMap id ∘ Map.mapWithKey (flip replicatePositiveNat) ∘ getCounts
 
 {-# COMPILE AGDA2HS mfromCounts #-}
+
+instance
+  iEqBag : ⦃ Ord a ⦄ → Eq (Bag a)
+  iEqBag ._==_ xs ys = mtoCounts xs == mtoCounts ys
+
+{-# COMPILE AGDA2HS iEqBag #-}

@@ -69,6 +69,8 @@ open import Data.Bag.Found              public using (deleteOne)
 import      Data.Bag.Prop.Core
 open import Data.Bag.Prop.Core          public hiding
   ( prop-morphism-foldBag )
+open import Data.Bag.Prop.Conversion    public
+open import Data.Bag.Prop.Deletion      public
 open import Data.Bag.Prop.Operations    public
 
 open import Haskell.Prelude

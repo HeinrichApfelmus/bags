@@ -14,6 +14,7 @@ open import Data.Bag.Prop.Core
 open import Haskell.Prelude
 open import Haskell.Law.Eq
 open import Haskell.Law.Equality
+open import Haskell.Law.Ord
 
 import      Data.Map as Map
 open import Data.Map using (Map)
@@ -109,4 +110,20 @@ prop-mfromCounts-mtoCounts =
         foldMap id (Map.singleton x (Bag.singleton x))
       ≡⟨ Map.prop-fold-singleton _ _ ⟩
         Bag.singleton x
+      ∎
+
+instance
+  iIsLawfulEqBag : ⦃ _ : Ord a ⦄ → ⦃ IsLawfulOrd a ⦄ → IsLawfulEq (Bag a)
+  iIsLawfulEqBag .isEquality xs ys
+    with xs == ys in eq
+  ... | False = λ { refl → nequality (mtoCounts xs) _ eq refl }
+  ... | True  =
+      begin
+        xs
+      ≡⟨ sym (prop-mfromCounts-mtoCounts _) ⟩
+        mfromCounts (mtoCounts xs)
+      ≡⟨ cong mfromCounts (equality (mtoCounts xs) (mtoCounts ys) eq) ⟩
+        mfromCounts (mtoCounts ys)
+      ≡⟨ prop-mfromCounts-mtoCounts _ ⟩
+        ys
       ∎

@@ -1,3 +1,6 @@
+{-# LANGUAGE StandaloneDeriving #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds -Wno-orphans #-}
+
 module Data.Bag.Counts 
     (
     -- * Type
@@ -25,6 +28,8 @@ A positive natural number.
 -}
 newtype PositiveNat = OnePlus Natural
 
+deriving instance Eq PositiveNat
+
 one :: PositiveNat
 one = OnePlus 0
 
@@ -47,6 +52,8 @@ where items are mapped to their number of occurrences.
 
 -}
 newtype Counts a = MkCounts{getCounts :: Map a PositiveNat}
+
+deriving instance (Ord a) => Eq (Counts a)
 
 {-|
 Construct a 'Counts' with a single item.
@@ -86,6 +93,9 @@ mfromCounts :: Ord a => Counts a -> Bag a
 mfromCounts
   = foldMap id .
       Map.mapWithKey (flip replicatePositiveNat) . \ r -> getCounts r
+
+instance (Ord a) => Eq (Bag a) where
+    xs == ys = mtoCounts xs == mtoCounts ys
 
 -- * Properties
 {- $prop-Counts-<>-assoc

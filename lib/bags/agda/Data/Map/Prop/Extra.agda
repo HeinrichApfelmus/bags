@@ -11,6 +11,7 @@ import Data.Monoid.Refinement as Monoid
 open import Haskell.Law.Eq
 open import Haskell.Law.Equality
 open import Haskell.Law.Monoid
+open import Haskell.Law.Ord
 
 ------------------------------------------------------------------------------
 -- Move out: Properties of if_then_else
@@ -77,6 +78,29 @@ module _ {k : Type} ⦃ _ : Ord k ⦄ where
   postulate
    prop-toAscList-empty
     : toAscList (empty {k} {a}) ≡ []
+
+{-----------------------------------------------------------------------------
+    Proofs
+    IsLawfulEq
+------------------------------------------------------------------------------}
+module _ {k : Type} ⦃ _ : Ord k ⦄ where
+  instance
+    iIsLawfulEqMap
+      : ⦃ IsLawfulOrd k ⦄ → ⦃ _ : Eq a ⦄ → ⦃ IsLawfulEq a ⦄
+      → IsLawfulEq (Map k a)
+    iIsLawfulEqMap .isEquality x y
+      with x == y in eq
+    ... | False = λ { refl → nequality (toAscList x) _ eq refl }
+    ... | True  =
+      begin
+        x
+      ≡⟨ sym (prop-fromList-toAscList _) ⟩
+        fromList (toAscList x)
+      ≡⟨ cong fromList (equality (toAscList x) (toAscList y) eq) ⟩
+        fromList (toAscList y)
+      ≡⟨ prop-fromList-toAscList _ ⟩
+        y
+      ∎
 
 {-----------------------------------------------------------------------------
     Proofs
