@@ -8,6 +8,7 @@ module Data.Monoid.Refinement
 
 import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
 import Data.Monoid.Extra (Conj, Disj, Sum')
+import Data.Set (Set)
 
 class Monoid a => Commutative a where
 
@@ -25,6 +26,8 @@ instance Commutative Conj where
 instance Commutative Disj where
 
 instance (Num a) => Commutative (Sum' a) where
+
+instance (Ord a) => Commutative (Set a) where
 
 -- * Properties
 {- $prop-<>-sym
