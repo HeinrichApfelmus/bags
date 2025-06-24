@@ -16,6 +16,8 @@ module Data.Table.Def
   -- ** Construction
   ; singleton
   ; indexBy
+  ; fromMap
+  ; fromSingletonsMap
 
   -- ** Combine
   ; merge
@@ -29,6 +31,7 @@ open import Data.Map using (Map)
 import      Data.Map as Map
 import      Data.Map.Prop.Extra as Map
 
+open import Haskell.Law.Eq
 open import Haskell.Law.Equality
 open import Haskell.Law.Extensionality
 open import Haskell.Law.Maybe using (Just-injective)
@@ -130,6 +133,19 @@ prop-invariant-mergeRaw {xs = xs} {ys = ys} cond-xs cond-ys key
     with null x
 ...   | True  = cx
 ...   | False = cy
+
+--
+prop-invariant-null
+  : ∀ {a k} ⦃ _ : Ord k ⦄ (key : k) (xs : Bag a)
+  → null xs ≡ False
+  → Is-lookup-not-null {a} {k} (Map.singleton key xs)
+--
+prop-invariant-null {a} {k} key xs cond key2
+  rewrite Map.prop-lookup-insert key2 key xs Map.empty
+  rewrite Map.prop-lookup-empty {k = k} {a = Bag a} key2
+  with key2 == key in eq
+... | False = refl
+... | True  rewrite cond = refl
 
 {-----------------------------------------------------------------------------
     Data type
@@ -259,6 +275,28 @@ instance
   iCommutativeTable .Monoid.commutative = prop-Table-<>-sym
 
 {-# COMPILE AGDA2HS iCommutativeTable #-}
+
+-- | Helper function: Construct a 'Table' from a 'Bag' for a single key.
+fromKeyAndBag : ∀ {k} ⦃ _ : Ord k ⦄ → k → Bag a → Table k a
+fromKeyAndBag key xs =
+  if null xs
+  then mempty
+  else λ ⦃ neq ⦄ → MkTable (Map.singleton key xs) (prop-invariant-null key xs neq)
+
+{-# COMPILE AGDA2HS fromKeyAndBag #-}
+
+-- | Construct a 'Table' from a 'Map' from keys to 'Bag'.
+fromMap : ∀ {k} ⦃ _ : Ord k ⦄ → Map k (Bag a) → Table k a
+fromMap =
+  mconcat ∘ fmap (λ { (key , xs) → fromKeyAndBag key xs }) ∘ Map.toAscList
+
+{-# COMPILE AGDA2HS fromMap #-}
+
+-- | Construct a 'Table' from a 'Map' from keys to items.
+fromSingletonsMap : ∀ {k} ⦃ _ : Ord k ⦄ → Map k a → Table k a
+fromSingletonsMap = fromMap ∘ Map.map Bag.singleton
+
+{-# COMPILE AGDA2HS fromSingletonsMap #-}
 
 -- | Index the items in a 'Bag' by a function.
 indexBy : ∀ {k} ⦃ _ : Ord k ⦄ → Bag a → (a → k) → Table k a

@@ -14,6 +14,9 @@ module Data.Table
     indexBy,
     -- ** Combine
     merge,
+    -- ** Conversion
+    fromMap,
+    fromSingletonsMap,
 
     -- * Properties
     module Data.Table.Prop

@@ -1,25 +1,32 @@
+{-# LANGUAGE LambdaCase #-}
 module Data.Table.Def 
     (
     -- * Type
     Table,
+    -- $prop-Table-equality
+    
     -- * Operations
     -- ** Query
     lookup,
+    getMap,
     elements,
     -- ** Construction
     singleton,
     indexBy,
+    fromMap,
+    fromSingletonsMap,
     -- ** Combine
     merge,
     )
     where
 
 import Prelude hiding (null, filter, lookup, map, concatMap, replicate)
+import Data.Bag.Def (null)
 import qualified Data.Bag.Def as Bag (cartesianProduct)
 import Data.Bag.Quotient (Bag, foldBag)
 import qualified Data.Bag.Quotient as Bag (singleton)
 import Data.Map (Map)
-import qualified Data.Map as Map (empty, intersectionWith, lookup, singleton, unionWith)
+import qualified Data.Map as Map (empty, intersectionWith, lookup, map, singleton, toAscList, unionWith)
 import qualified Data.Monoid.Refinement (Commutative)
 
 mergeRaw ::
@@ -34,6 +41,12 @@ This type can also be viewed as a 'Bag' where elements have been grouped
 by keys.
 -}
 newtype Table k a = MkTable{getTable :: Map k (Bag a)}
+
+{-|
+Get the 'Data.Map.Map' that stores the mapping from keys to 'Bag's.
+-}
+getMap :: Ord k => Table k a -> Map k (Bag a)
+getMap = \ r -> getTable r
 
 toBag :: Maybe (Bag a) -> Bag a
 toBag Nothing = mempty
@@ -59,6 +72,30 @@ instance (Ord k) => Monoid (Table k a) where
 
 instance (Ord k) => Data.Monoid.Refinement.Commutative (Table k a)
          where
+
+{-|
+Helper function: Construct a 'Table' from a 'Bag' for a single key.
+-}
+fromKeyAndBag :: Ord k => k -> Bag a -> Table k a
+fromKeyAndBag key xs
+  = if null xs then mempty else MkTable (Map.singleton key xs)
+
+{-|
+Construct a 'Table' from a 'Map' from keys to 'Bag'.
+-}
+fromMap :: Ord k => Map k (Bag a) -> Table k a
+fromMap
+  = mconcat .
+      fmap
+        (\case
+             (key, xs) -> fromKeyAndBag key xs)
+        . Map.toAscList
+
+{-|
+Construct a 'Table' from a 'Map' from keys to items.
+-}
+fromSingletonsMap :: Ord k => Map k a -> Table k a
+fromSingletonsMap = fromMap . Map.map Bag.singleton
 
 {-|
 Index the items in a 'Bag' by a function.
@@ -127,7 +164,7 @@ merge xs ys = MkTable (mergeRaw (getTable xs) (getTable ys))
     
     > prop-Table-equality
     >   : ∀ {k} ⦃ _ : Ord k ⦄ {xs ys : Table k a}
-    >   → getTable xs ≡ getTable ys
+    >   → getMap xs ≡ getMap ys
     >   → xs ≡ ys
 -}
 {- $prop-lookup→equality
