@@ -8,6 +8,7 @@ module Data.Table
     -- ** Query
     lookup,
     elements,
+    getMap,
     -- ** Construction
     singleton,
     indexBy,

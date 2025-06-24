@@ -5,10 +5,12 @@ module Data.Table.Def
   {-|
   -- * Type
   ; Table
+  ; prop-Table-equality
 
   -- * Operations
   -- ** Query
   ; lookup
+  ; getMap
   ; elements
 
   -- ** Construction
@@ -147,10 +149,16 @@ open Table public
 
 {-# COMPILE AGDA2HS Table newtype #-}
 
+-- | Get the 'Data.Map.Map' that stores the mapping from keys to 'Bag's.
+getMap : ∀ {k} ⦃ _ : Ord k ⦄ → Table k a → Map k (Bag a)
+getMap = getTable
+
+{-# COMPILE AGDA2HS getMap #-}
+
 -- | Two Tables are equal if they contain the same 'Map'.
 prop-Table-equality
   : ∀ {k} ⦃ _ : Ord k ⦄ {xs ys : Table k a}
-  → getTable xs ≡ getTable ys
+  → getMap xs ≡ getMap ys
   → xs ≡ ys
 --
 prop-Table-equality refl = refl
