@@ -41,9 +41,11 @@ module Data.Bag
   -- ** Conversion
   ; toCounts
   ; fromCounts
+  ; fromUnique
 
   -- * Properties
   ; module Data.Bag.Prop.Core
+  ; module Data.Bag.Prop.Conversion
   ; module Data.Bag.Prop.Deletion
   ; module Data.Bag.Prop.Operations
   -} where
@@ -54,6 +56,7 @@ module Data.Bag
   import Data.Bag.Quotient
   import Data.Bag.Found (deleteOne)
   import Data.Bag.Prop.Core
+  import Data.Bag.Prop.Conversion
   import Data.Bag.Prop.Deletion
   import Data.Bag.Prop.Operations
 #-}
@@ -64,7 +67,7 @@ open import Haskell.Data.Bag.Quotient   public hiding
   ; prop-foldBag-unique
   )
 open import Data.Bag.Def                public
-open import Data.Bag.Counts             using (toCounts; fromCounts)
+open import Data.Bag.Counts             using (toCounts; fromCounts; fromUnique)
 open import Data.Bag.Found              public using (deleteOne)
 import      Data.Bag.Prop.Core
 open import Data.Bag.Prop.Core          public hiding
@@ -82,7 +85,7 @@ import Data.Monoid.Refinement as Monoid
 import Data.Monoid.Morphism as Monoid
 
 {-# FOREIGN AGDA2HS
-  import Data.Bag.Counts (toCounts, fromCounts)
+  import Data.Bag.Counts (toCounts, fromCounts, fromUnique)
 #-}
 
 {-----------------------------------------------------------------------------
