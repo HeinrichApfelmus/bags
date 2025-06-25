@@ -11,6 +11,7 @@ module Data.Bag.Counts
     natFromPositiveNat,
     toCounts,
     fromCounts,
+    fromUnique,
     )
     where
 
@@ -19,7 +20,7 @@ import Data.Bag.Quotient (Bag, foldBag)
 import qualified Data.Bag.Quotient as Bag (singleton)
 import Data.List.Extra (replicateNat)
 import Data.Map (Map)
-import qualified Data.Map as Map (empty, mapWithKey, singleton, unionWith)
+import qualified Data.Map as Map (empty, mapWithKey, singleton, toAscList, unionWith)
 import qualified Data.Monoid.Refinement (Commutative)
 import Numeric.Natural (Natural)
 
@@ -96,6 +97,16 @@ mfromCounts
 
 instance (Ord a) => Eq (Bag a) where
     xs == ys = mtoCounts xs == mtoCounts ys
+
+{-|
+Given a 'Bag' that contains only one unique item
+(though perhaps multiple times), extract that item.
+-}
+fromUnique :: Ord a => Bag a -> Maybe a
+fromUnique xs
+  = case Map.toAscList (toCounts xs) of
+        [(x, _)] -> Just x
+        _ -> Nothing
 
 -- * Properties
 {- $prop-Counts-<>-assoc

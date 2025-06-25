@@ -40,6 +40,7 @@ module Data.Bag
     -- ** Conversion
     toCounts,
     fromCounts,
+    fromUnique,
     -- * Properties
     module Data.Bag.Prop.Core,
     module Data.Bag.Prop.Deletion,
@@ -57,7 +58,7 @@ import Data.Bag.Prop.Core
 import Data.Bag.Prop.Deletion
 import Data.Bag.Prop.Operations
 
-import Data.Bag.Counts (toCounts, fromCounts)
+import Data.Bag.Counts (toCounts, fromCounts, fromUnique)
 
 -- * Properties
 {- $prop-foldBag-singleton

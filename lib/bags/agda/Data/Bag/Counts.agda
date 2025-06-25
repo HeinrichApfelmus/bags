@@ -13,6 +13,7 @@ module Data.Bag.Counts
   ; natFromPositiveNat
   ; toCounts
   ; fromCounts
+  ; fromUnique
   -} where
 
 open import Haskell.Prelude hiding (lookup; null)
@@ -301,3 +302,13 @@ instance
   iEqBag ._==_ xs ys = mtoCounts xs == mtoCounts ys
 
 {-# COMPILE AGDA2HS iEqBag #-}
+
+-- | Given a 'Bag' that contains only one unique item
+-- (though perhaps multiple times), extract that item.
+fromUnique : ⦃ Ord a ⦄ → Bag a → Maybe a
+fromUnique xs =
+  case Map.toAscList (toCounts xs) of λ where
+    ((x , _) ∷ []) → Just x
+    _              → Nothing
+
+{-# COMPILE AGDA2HS fromUnique #-}
