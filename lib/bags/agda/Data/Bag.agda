@@ -45,6 +45,7 @@ module Data.Bag
 
   -- * Properties
   ; module Data.Bag.Prop.Core
+  ; module Data.Bag.Prop.Conversion
   ; module Data.Bag.Prop.Deletion
   ; module Data.Bag.Prop.Operations
   -} where
@@ -55,6 +56,7 @@ module Data.Bag
   import Data.Bag.Quotient
   import Data.Bag.Found (deleteOne)
   import Data.Bag.Prop.Core
+  import Data.Bag.Prop.Conversion
   import Data.Bag.Prop.Deletion
   import Data.Bag.Prop.Operations
 #-}
