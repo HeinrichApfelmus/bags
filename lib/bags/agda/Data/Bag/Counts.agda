@@ -32,6 +32,7 @@ open import Haskell.Law.Num
 open import Haskell.Law.Eq
 open import Haskell.Law.Equality
 open import Haskell.Law.Extensionality
+open import Haskell.Law.Extensionality.Extra
 open import Haskell.Law.Maybe using (Just-injective)
 import      Haskell.Law.Monoid as Monoid
 open import Haskell.Law.Ord
