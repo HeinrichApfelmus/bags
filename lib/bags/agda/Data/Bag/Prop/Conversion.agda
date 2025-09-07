@@ -101,7 +101,6 @@ prop-mfromCounts-mtoCounts =
     eq-singleton
       : ∀ x → lhs (Bag.singleton x) ≡ rhs (Bag.singleton x)
     eq-singleton x
-      rewrite prop-replicatePositiveNat-one x
       = begin
         (foldMap id $ Map.mapWithKey (flip replicatePositiveNat) $ Map.singleton x one)
       ≡⟨ cong (foldMap id) (Map.prop-mapWithKey-singleton (flip replicatePositiveNat) _ _) ⟩

@@ -65,7 +65,7 @@ singleton :: Ord k => k -> a -> Table k a
 singleton key x = MkTable (Map.singleton key (Bag.singleton x))
 
 instance (Ord k) => Semigroup (Table k a) where
-    MkTable xs <> MkTable ys = MkTable (Map.unionWith (<>) xs ys)
+    xs <> ys = MkTable (Map.unionWith (<>) (getTable xs) (getTable ys))
 
 instance (Ord k) => Monoid (Table k a) where
     mempty = MkTable Map.empty

@@ -1,12 +1,7 @@
-module Haskell.Law.Extensionality where
+module Haskell.Law.Extensionality.Extra where
 
 open import Haskell.Prim
-
---------------------------------------------------
--- Move out: Function extensionality
-
-postulate
-  ext : ∀ {f g : a → b} → (∀ x → f x ≡ g x) → f ≡ g
+open import Haskell.Law.Extensionality using (ext)
 
 -- | Convenience:
 -- Function extensionality for functions with two arguments

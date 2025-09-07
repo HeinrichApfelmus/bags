@@ -36,6 +36,8 @@ prop-mconcat-++ (x ∷ xs) ys
 -- | Boolean monoid under conjunction '(&&)'.
 record Conj : Type where
   constructor MkConj
+  no-eta-equality
+  pattern
   field
     getConj : Bool
 
@@ -79,6 +81,8 @@ instance
 -- | Boolean monoid under disjunction '(||)'.
 record Disj : Type where
   constructor MkDisj
+  no-eta-equality
+  pattern
   field
     getDisj : Bool
 
@@ -100,8 +104,8 @@ instance
   iMonoidDisj = record{DefaultMonoid iDefaultMonoidDisj}
 
   isLawfulSemigroupDisj : IsLawfulSemigroup Disj
-  isLawfulSemigroupDisj .associativity (MkDisj False) y z = refl
-  isLawfulSemigroupDisj .associativity (MkDisj True) y z = refl
+  isLawfulSemigroupDisj .associativity (MkDisj False) (MkDisj y) (MkDisj z) = refl
+  isLawfulSemigroupDisj .associativity (MkDisj True ) (MkDisj y) (MkDisj z) = refl
 
   isLawfulMonoidDisj : IsLawfulMonoid Disj
   isLawfulMonoidDisj .rightIdentity (MkDisj False) = refl
@@ -122,6 +126,8 @@ instance
 -- | Monoid under addition.
 record Sum' a : Type where
   constructor MkSum
+  no-eta-equality
+  pattern
   field
     getSum' : a
 

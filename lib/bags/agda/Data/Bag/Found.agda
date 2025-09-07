@@ -34,6 +34,8 @@ private
 -- The item is part of the type, but erased.
 record Found (a : Type) (@0 x : a) : Type where
   constructor MkFound
+  no-eta-equality
+  pattern
   field
     found : Maybe a
     rest  : Bag a
@@ -52,7 +54,7 @@ equality-Found
   : ∀ {@0 z : a} (x y : Found a z)
   → found x ≡ found y → rest x ≡ rest y → x ≡ y
 --
-equality-Found x y refl refl = refl
+equality-Found (MkFound xf xr _) (MkFound yf yr _) refl refl = refl
 
 -- | Use a decidable equality to get 
 recompute-Eq : ∀ ⦃ _ : Eq a ⦄ ⦃ _ : IsLawfulEq a ⦄ (x y : a)
@@ -159,9 +161,7 @@ instance
     | sym (associativity (singleton y) ry rz)
     = refl
   ... | Just x  | Just y  | Just z
-    rewrite sym (associativity (singleton y) ry (singleton z <> rz))
-    | sym (associativity rx (singleton y) ry)
-    | sym (associativity rx (singleton y <> ry) (singleton z <> rz))
+    rewrite sym (associativity rx (singleton y <> ry) (singleton z <> rz))
     | sym (associativity (singleton y) ry (singleton z <> rz))
     = refl
 
