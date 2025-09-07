@@ -59,7 +59,9 @@ open import Data.Bag.Def
 open import Haskell.Prim.Alternative
 open import Haskell.Prim.MonadPlus
 open import Haskell.Law
+open import Haskell.Law.Applicative.FromMonad
 open import Haskell.Law.Extensionality
+open import Haskell.Law.Functor.FromMonad
 open import Haskell.Law.Monad.Extra
 open import Haskell.Law.MonadPlus
 open import Haskell.Law.Num
@@ -71,8 +73,6 @@ import Haskell.Law.Monoid as Monoid
 open import Data.Monoid.Extra
 import      Data.Monoid.Morphism as Monoid
 import      Data.Monoid.Refinement as Monoid
-
-open import Control.Monad.Prop as Monad
 
 {-# FOREIGN AGDA2HS
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
@@ -168,44 +168,25 @@ prop-foldBag-associative g f =
     lhs = λ xs → foldBag (foldBag g ∘ f) xs
     rhs = λ xs → foldBag g (foldBag f xs)
 
-minimalIsLawfulMonadBag : MinimalIsLawfulMonad Bag
-minimalIsLawfulMonadBag = record
-  { leftIdentity  = λ a' k → refl 
-  ; rightIdentity = prop-foldBag-function-singleton
-  ; associativity = λ ma f g → prop-foldBag-associative g f ma
-  }
-
-hasMonad→Applicative : Monad→Applicative Bag
-hasMonad→Applicative = record
-  { pure-return = λ x → refl
-  ; <*>->>= = λ mab ma → refl
-  }
-
-hasMonad→Functor : Monad→Functor Bag
-hasMonad→Functor = record { fmap->>= = λ f ma → refl }
 
 instance
+  iPreLawfulMonadBag : PreLawfulMonad Bag
+  iPreLawfulMonadBag .leftIdentity  = λ a' k → refl
+  iPreLawfulMonadBag .rightIdentity = prop-foldBag-function-singleton
+  iPreLawfulMonadBag .associativity = λ ma f g → prop-foldBag-associative g f ma
+  iPreLawfulMonadBag .def->>->>= _ _ = refl
+  iPreLawfulMonadBag .def-pure-return _ = refl
+  iPreLawfulMonadBag .def-fmap->>= _ _ = refl
+  iPreLawfulMonadBag .def-<*>->>= _ _ = refl
+
+  isLawfulApplicativeBag : IsLawfulApplicative Bag
+  isLawfulApplicativeBag = prop-PreLawfulMonad→IsLawfulApplicative
+
   iLawfulFunctorBag : IsLawfulFunctor Bag
-  iLawfulFunctorBag =
-    prop-IsLawfulMonad→IsLawfulFunctor
-      minimalIsLawfulMonadBag hasMonad→Functor
+  iLawfulFunctorBag = prop-PreLawfulMonad→IsLawfulFunctor
 
-  iLawfulApplicativeBag : IsLawfulApplicative Bag
-  iLawfulApplicativeBag =
-    prop-IsLawfulMonad→IsLawfulApplicative
-      minimalIsLawfulMonadBag hasMonad→Functor hasMonad→Applicative 
-
-  iLawfulMonadBag : IsLawfulMonad Bag
-  iLawfulMonadBag .leftIdentity  = minimalIsLawfulMonadBag .MinimalIsLawfulMonad.leftIdentity
-  iLawfulMonadBag .rightIdentity = minimalIsLawfulMonadBag .MinimalIsLawfulMonad.rightIdentity
-  iLawfulMonadBag .associativity = minimalIsLawfulMonadBag .MinimalIsLawfulMonad.associativity
-  iLawfulMonadBag .pureIsReturn  = hasMonad→Applicative .Monad→Applicative.pure-return
-  iLawfulMonadBag .sequence2bind = hasMonad→Applicative .Monad→Applicative.<*>->>=
-  iLawfulMonadBag .fmap2bind     = hasMonad→Functor .Monad→Functor.fmap->>=
-  iLawfulMonadBag .rSequence2rBind =
-    prop-*>->>
-      minimalIsLawfulMonadBag hasMonad→Applicative hasMonad→Functor
-      (λ ma mb → refl) (λ ma mb → refl)
+  iIsLawfulMonadBag : IsLawfulMonad Bag
+  iIsLawfulMonadBag = record {}
 
   iLawfulMonadPlusBag : IsLawfulMonadPlus Bag
   iLawfulMonadPlusBag .mplus-mzero-x = Monoid.leftIdentity
