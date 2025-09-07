@@ -6,7 +6,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
-    agda2hs.url = "github:agda/agda2hs?ref=b186b4c6b5baba2677f45ea83dad7da473a66591";
+    agda2hs.url = "github:agda/agda2hs?ref=aedafce25dbb0eb17c49472ef240da17ed0fd294";
   };
 
   outputs = {self, nixpkgs, flake-utils, agda2hs}:
