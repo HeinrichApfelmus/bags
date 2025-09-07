@@ -1,6 +1,6 @@
 name: bag
 include: agda
 depend:
-  base
-  containers
+  agda2hs-base
+  agda2hs-containers
 flags: --erasure --no-import-sorts --rewriting
