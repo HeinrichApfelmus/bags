@@ -159,9 +159,7 @@ instance
     | sym (associativity (singleton y) ry rz)
     = refl
   ... | Just x  | Just y  | Just z
-    rewrite sym (associativity (singleton y) ry (singleton z <> rz))
-    | sym (associativity rx (singleton y) ry)
-    | sym (associativity rx (singleton y <> ry) (singleton z <> rz))
+    rewrite sym (associativity rx (singleton y <> ry) (singleton z <> rz))
     | sym (associativity (singleton y) ry (singleton z <> rz))
     = refl
 
