@@ -354,7 +354,7 @@ prop-def-cartesianProduct
 prop-def-cartesianProduct xs ys = refl
 
 _||-Conj_ : Conj → Conj → Conj
-_||-Conj_ (MkConj x) (MkConj y) = MkConj (x || y)
+_||-Conj_ x y = MkConj (getConj x || getConj y)
 
 lemma-morphism-||-1
   : ∀ (x : Conj)

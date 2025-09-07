@@ -63,7 +63,8 @@ singleton :: Ord a => a -> Counts a
 singleton x = MkCounts (Map.singleton x one)
 
 instance (Ord a) => Semigroup (Counts a) where
-    MkCounts xs <> MkCounts ys = MkCounts (Map.unionWith (<>) xs ys)
+    xs <> ys
+      = MkCounts (Map.unionWith (<>) (getCounts xs) (getCounts ys))
 
 instance (Ord a) => Monoid (Counts a) where
     mempty = MkCounts Map.empty

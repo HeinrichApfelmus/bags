@@ -157,6 +157,8 @@ prop-invariant-null {a} {k} key xs cond key2
 -- by keys.
 record Table k a ⦃ @0 _ : Ord k ⦄ : Type where
   constructor MkTable
+  no-eta-equality
+  pattern
   field
     getTable : Map k (Bag a)
     @0 . invariant-lookup : Is-lookup-not-null getTable
@@ -177,7 +179,7 @@ prop-Table-equality
   → getMap xs ≡ getMap ys
   → xs ≡ ys
 --
-prop-Table-equality refl = refl
+prop-Table-equality {xs = MkTable xs₀ _} {ys = MkTable ys₀ _} refl = refl
 
 {-----------------------------------------------------------------------------
     Operations
@@ -204,8 +206,10 @@ singleton key x =
 
 instance
   iSemigroupTable : ∀ {k} ⦃ _ : Ord k ⦄ → Semigroup (Table k a)
-  iSemigroupTable ._<>_ (MkTable xs inv-x) (MkTable ys inv-y) =
-    MkTable (Map.unionWith (_<>_) xs ys) (prop-invariant-unionWith inv-x inv-y)
+  iSemigroupTable ._<>_ xs ys =
+    MkTable
+      (Map.unionWith (_<>_) (getTable xs) (getTable ys))
+      (prop-invariant-unionWith (invariant-lookup xs) (invariant-lookup ys))
 
   iDefaultMonoidTable : ∀ {k} ⦃ _ : Ord k ⦄ → DefaultMonoid (Table k a)
   iDefaultMonoidTable .DefaultMonoid.mempty =

@@ -150,6 +150,8 @@ prop-replicatePositiveNat-<> m n x
 --
 record Counts a ⦃ @0 _ : Ord a ⦄ : Type where
   constructor MkCounts
+  no-eta-equality
+  pattern
   field
     getCounts : Map a PositiveNat
 
@@ -163,7 +165,7 @@ prop-Counts-equality
   → getCounts xs ≡ getCounts ys
   → xs ≡ ys
 --
-prop-Counts-equality refl = refl
+prop-Counts-equality {xs = MkCounts xs₀} {ys = MkCounts ys₀} refl = refl
 
 instance
   iEqCounts : ⦃ _ : Ord a ⦄ → Eq (Counts a)
@@ -188,8 +190,8 @@ singleton x = MkCounts (Map.singleton x one)
 
 instance
   iSemigroupCounts : ∀ ⦃ _ : Ord a ⦄ → Semigroup (Counts a)
-  iSemigroupCounts ._<>_ (MkCounts xs) (MkCounts ys) =
-    MkCounts (Map.unionWith (_<>_) xs ys)
+  iSemigroupCounts ._<>_ xs ys =
+    MkCounts (Map.unionWith (_<>_) (getCounts xs) (getCounts ys))
 
   iDefaultMonoidCounts : ∀ ⦃ _ : Ord a ⦄ → DefaultMonoid (Counts a)
   iDefaultMonoidCounts .DefaultMonoid.mempty = MkCounts Map.empty
